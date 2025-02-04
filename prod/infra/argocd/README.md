@@ -1,0 +1,1 @@
+Terraform for the ArgoCD instance
