@@ -1,15 +1,20 @@
+require('dotenv').config();
 const { Client, GatewayIntentBits, ChannelType } = require('discord.js');
 const { joinVoiceChannel, VoiceConnectionStatus, EndBehaviorType } = require('@discordjs/voice');
 const prism = require('prism-media');
 const fs = require('fs');
 const path = require('path');
 const wav = require('wav');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMembers] });
 
-const TOKEN = 'YOUR_BOT_TOKEN';
-const CHANNEL_ID = 'YOUR_VOICE_CHANNEL'; // Voice channel ID to join
-const USER_ID = 'YOUR_TARGET_USER'; // User ID of the member to record
+const TOKEN = process.env.DISCORD_BOT_TOKEN;
+const CHANNEL_ID = process.env.VOICE_CHANNEL_ID;
+const USER_ID = process.env.TARGET_USER_ID;
+const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
+
+const s3Client = new S3Client({ region: process.env.AWS_REGION });
 
 client.once('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -57,12 +62,34 @@ async function recordAudio(connection) {
     const pcmStream = new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 });
     audioStream.pipe(pcmStream).pipe(fileWriter);
 
+    fileWriter.on('finish', async () => {
+        console.log('Recording finished.');
+        await uploadToS3(outputPath);
+        connection.destroy();
+        client.destroy();
+    });
+
     setTimeout(() => {
         console.log('Stopping recording.');
         fileWriter.end();
-        connection.destroy();
-        client.destroy();
     }, 300000); // Adjust the duration as needed
+}
+
+async function uploadToS3(filePath) {
+    const fileContent = fs.readFileSync(filePath);
+    const params = {
+        Bucket: S3_BUCKET_NAME,
+        Key: path.basename(filePath),
+        Body: fileContent,
+    };
+
+    try {
+        const command = new PutObjectCommand(params);
+        await s3Client.send(command);
+        console.log(`File uploaded successfully to ${S3_BUCKET_NAME}/${path.basename(filePath)}`);
+    } catch (error) {
+        console.error('Error uploading file:', error);
+    }
 }
 
 client.login(TOKEN);
