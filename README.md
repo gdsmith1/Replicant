@@ -11,6 +11,7 @@ Create a `.env` file with the following contents:
 ├── .github
 │   └── workflows
 │       └── main.yaml
+├── .gitignore
 ├── LICENSE
 ├── README.md
 ├── bootstrap
@@ -23,6 +24,7 @@ Create a `.env` file with the following contents:
 │   │   │   │   └── argo-application.yaml
 │   │   │   └── collector-bot
 │   │   │       ├── app
+│   │   │       │   ├── Dockerfile
 │   │   │       │   ├── README.md
 │   │   │       │   ├── audio
 │   │   │       │   │   └── README.md
@@ -50,9 +52,14 @@ Create a `.env` file with the following contents:
 │       │   └── README.md
 │       ├── eks
 │       │   └── README.md
+│       ├── s3
+│       │   ├── README.md
+│       │   ├── main.tf
+│       │   ├── outputs.tf
+│       │   └── variables.tf
 │       └── vpc
 │           └── README.md
 └── terragrunt.hcl
 
-23 directories, 23 files
+24 directories, 29 files
 ```
