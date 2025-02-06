@@ -15,7 +15,6 @@ Create a `.env` file with the following contents:
 ├── README.md
 ├── bootstrap
 │   └── README.md
-├── file_structure.txt
 ├── prod
 │   ├── applications
 │   │   ├── discord
@@ -55,5 +54,5 @@ Create a `.env` file with the following contents:
 │           └── README.md
 └── terragrunt.hcl
 
-23 directories, 24 files
+23 directories, 23 files
 ```
