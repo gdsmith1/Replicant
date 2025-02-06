@@ -1,0 +1,15 @@
+# Local env files
+*.env
+
+# Collector bot
+node_modules/
+*.wav
+
+# AI Trainer
+venv/
+
+# Terragrunt/Terraform
+.terragrunt-cache/
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
