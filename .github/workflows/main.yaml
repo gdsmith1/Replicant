@@ -6,37 +6,55 @@ on:
       - main
 
 permissions:
-  contents: write
+    contents: write
+    packages: write
+    id-token: write
 
 jobs:
   update-readme:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Install tree
         run: sudo apt-get install -y tree
 
-      - name: Generate file structure
+      - name: Generate a Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Use the Token
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-            tree -aI '.git' 
-            tree -aI '.git' > file_structure.txt
+             git config --global url."https://git:${GH_TOKEN}@github.com".insteadOf https://github.com
+             git config --global user.name '${{ github.actor }}'
+             git config --global user.email '${{ github.actor }}@users.noreply.github.com'
+      
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
+
+      - name: Generate file structure
+        run:  tree -aI '.git|file_structure.txt' > file_structure.txt
 
       - name: Update README.md
         run: |
-            ls
-            sed -i.bak '/## File Structure/,$d' README.md && rm README.md.bak
+            sed -i.bak '/## File Structure/,$d' README.md
             echo '## File Structure' >> README.md
             echo '```' >> README.md
             cat file_structure.txt >> README.md
             echo '```' >> README.md
+            rm file_structure.txt README.md.bak
 
       - name: Commit changes
         run: |
-            git config --global user.name 'github-actions[bot]'
-            git config --global user.email 'github-actions[bot]@users.noreply.github.com'
             git add README.md
-            git commit -m 'Update README file structure'
-            git push
+            git commit -m 'Update README file structure [skip ci]'
+            git push -f
