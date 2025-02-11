@@ -23,52 +23,54 @@ Create a `.env` file with the following contents:
 ├── .gitignore
 ├── LICENSE
 ├── README.md
+├── applications
+│   ├── discord
+│   │   ├── clockwatch
+│   │   │   ├── README.md
+│   │   │   └── argo-application.yaml
+│   │   └── collector-bot
+│   │       ├── app
+│   │       │   ├── Dockerfile
+│   │       │   ├── README.md
+│   │       │   ├── audio
+│   │       │   │   └── README.md
+│   │       │   ├── index.js
+│   │       │   ├── package-lock.json
+│   │       │   └── package.json
+│   │       ├── argo-application.yaml
+│   │       └── manifests
+│   │           └── README.md
+│   └── machine-learning
+│       ├── llm
+│       │   ├── app
+│       │   │   └── README.md
+│       │   ├── argo-application.yaml
+│       │   └── manifests
+│       │       └── README.md
+│       └── tts
+│           ├── app
+│           │   └── README.md
+│           ├── argo-application.yaml
+│           └── manifests
+│               └── README.md
+├── backend.tf
 ├── bootstrap
 │   └── README.md
-├── prod
-│   ├── applications
-│   │   ├── discord
-│   │   │   ├── clockwatch
-│   │   │   │   ├── README.md
-│   │   │   │   └── argo-application.yaml
-│   │   │   └── collector-bot
-│   │   │       ├── app
-│   │   │       │   ├── Dockerfile
-│   │   │       │   ├── README.md
-│   │   │       │   ├── audio
-│   │   │       │   │   └── README.md
-│   │   │       │   ├── index.js
-│   │   │       │   ├── package-lock.json
-│   │   │       │   └── package.json
-│   │   │       ├── argo-application.yaml
-│   │   │       └── manifests
-│   │   │           └── README.md
-│   │   └── machine-learning
-│   │       ├── llm
-│   │       │   ├── app
-│   │       │   │   └── README.md
-│   │       │   ├── argo-application.yaml
-│   │       │   └── manifests
-│   │       │       └── README.md
-│   │       └── tts
-│   │           ├── app
-│   │           │   └── README.md
-│   │           ├── argo-application.yaml
-│   │           └── manifests
-│   │               └── README.md
-│   └── infra
-│       ├── argocd
-│       │   └── README.md
-│       ├── eks
-│       │   └── README.md
-│       ├── s3
-│       │   ├── README.md
-│       │   ├── main.tf
-│       │   ├── outputs.tf
-│       │   └── variables.tf
-│       └── vpc
-│           └── README.md
+├── infra
+│   ├── argocd
+│   │   └── README.md
+│   ├── eks
+│   │   └── README.md
+│   ├── s3
+│   │   ├── .terraform.lock.hcl
+│   │   ├── README.md
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   ├── terragrunt.hcl
+│   │   └── variables.tf
+│   └── vpc
+│       └── README.md
 └── terragrunt.hcl
 
-24 directories, 29 files
+23 directories, 32 files
 ```
