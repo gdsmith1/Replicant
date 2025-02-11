@@ -12,10 +12,16 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const CHANNEL_ID = process.env.VOICE_CHANNEL_ID;
 const USER_ID = process.env.TARGET_USER_ID;
-const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
+const S3_BUCKET_NAME = "replicant-s3-bucket"; // Set in terraform
 
-const s3Client = new S3Client({ region: process.env.AWS_REGION });
-
+// Load AWS credentials from environment variables
+const s3Client = new S3Client({ 
+    region: "us-east-1",
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+});
 client.once('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
 
@@ -72,7 +78,7 @@ async function recordAudio(connection) {
     setTimeout(() => {
         console.log('Stopping recording.');
         fileWriter.end();
-    }, 300000); // Adjust the duration as needed
+    }, 60000); // Adjust the duration as needed
 }
 
 async function uploadToS3(filePath) {
