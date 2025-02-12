@@ -74,7 +74,6 @@ Create a `.env` file with the following contents:
 │   ├── eks
 │   │   └── README.md
 │   ├── s3
-│   │   ├── README.md
 │   │   ├── main.tf
 │   │   ├── outputs.tf
 │   │   ├── terragrunt.hcl
@@ -83,5 +82,5 @@ Create a `.env` file with the following contents:
 │       └── README.md
 └── terragrunt.hcl
 
-23 directories, 30 files
+23 directories, 29 files
 ```
