@@ -53,7 +53,6 @@ Create a `.env` file with the following contents:
 │           ├── argo-application.yaml
 │           └── manifests
 │               └── README.md
-├── backend.tf
 ├── bootstrap
 │   └── README.md
 ├── infra
@@ -62,7 +61,6 @@ Create a `.env` file with the following contents:
 │   ├── eks
 │   │   └── README.md
 │   ├── s3
-│   │   ├── .terraform.lock.hcl
 │   │   ├── README.md
 │   │   ├── main.tf
 │   │   ├── outputs.tf
@@ -72,5 +70,5 @@ Create a `.env` file with the following contents:
 │       └── README.md
 └── terragrunt.hcl
 
-23 directories, 32 files
+23 directories, 30 files
 ```
