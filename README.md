@@ -1,18 +1,31 @@
 # Replicant
 
-
 ## Requirements
-AWS access keys: create the keys in AWS and use `aws configure` to enter them to be able to use them with terragrunt.  For continuity's sake, all infra is written for _us-east-1_.
+### Tooling
+__Required tools to run__:
+* AWS CLI
+* Terraform
+* Terragrunt
 
-Discord Bot: create a discord bot from the developer portal and add it to your discord server.  I used administrator permissions to develop, but this is not a recommended approach for security.
+__Additional Tools for Development__:
+* Docker
+* Kubectl (and k9s)
 
-Discord Server: Ensure that the users in your server will not disconnect the bot while it is running!
 
+### Resources
+__AWS access keys__: create the keys in AWS and use `aws configure` to enter them to be able to use them with terragrunt.  For continuity's sake, all infra is written for _us-east-1_.
+
+__Discord Bot__: create a discord bot from the developer portal and add it to your discord server.  I used administrator permissions to develop, but this is not a recommended approach for security.
+
+__Discord Server__: Ensure that the users in your server will not disconnect the bot while it is running!
+
+### Environment
 Create a `.env` file with the following contents:
 * DISCORD_BOT_TOKEN: A discord bot token with administrator access (can be more fine-grained, but I haven't tested the minimum requirements)
 * VOICE_CHANNEL_ID: The discord voice channel you wish to observe
 * TARGET_USER_ID: The discord user you wish to observe
-* AWS
+* AWS_ACCESS_KEY_ID: Access key ID for your AWS account
+* AWS_SECRET_ACCESS_KEY: Secret access key for your AWS account
 
 ## File Structure
 ```

@@ -1,1 +1,0 @@
-Terraform for the vpc infra
