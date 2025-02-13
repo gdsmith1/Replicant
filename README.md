@@ -60,9 +60,21 @@ Create a `.env` file with the following contents:
 │       │   ├── argo-application.yaml
 │       │   └── manifests
 │       │       └── README.md
+│       ├── transcribe
+│       │   ├── app
+│       │   │   ├── README.md
+│       │   │   ├── audio
+│       │   │   │   └── README.md
+│       │   │   ├── main.py
+│       │   │   └── requirements.txt
+│       │   ├── argo-application.yaml
+│       │   └── manifests
+│       │       └── README.md
 │       └── tts
 │           ├── app
-│           │   └── README.md
+│           │   ├── README.md
+│           │   └── audio
+│           │       └── README.md
 │           ├── argo-application.yaml
 │           └── manifests
 │               └── README.md
@@ -82,5 +94,5 @@ Create a `.env` file with the following contents:
 │       └── README.md
 └── terragrunt.hcl
 
-23 directories, 29 files
+28 directories, 36 files
 ```
