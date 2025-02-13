@@ -92,7 +92,7 @@ async function uploadToS3(filePath) {
     try {
         const command = new PutObjectCommand(params);
         await s3Client.send(command);
-        console.log(`File uploaded successfully to ${S3_BUCKET_NAME}/${path.basename(filePath)}`);
+        console.log(`File uploaded successfully to ${S3_BUCKET_NAME}/audio/${path.basename(filePath)}`);
     } catch (error) {
         console.error('Error uploading file:', error);
     }
