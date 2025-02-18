@@ -55,7 +55,8 @@ Create a `.env` file with the following contents:
 │   └── machine-learning
 │       ├── llm
 │       │   ├── app
-│       │   │   └── README.md
+│       │   │   ├── README.md
+│       │   │   └── main.py
 │       │   ├── argo-application.yaml
 │       │   └── manifests
 │       │       └── README.md
@@ -65,7 +66,7 @@ Create a `.env` file with the following contents:
 │       │   │   ├── audio
 │       │   │   │   └── README.md
 │       │   │   ├── main.py
-│       │   │   └── requirements.txt
+│       │   │   └── requirements.md
 │       │   ├── argo-application.yaml
 │       │   └── manifests
 │       │       └── README.md
@@ -93,5 +94,5 @@ Create a `.env` file with the following contents:
 │       └── README.md
 └── terragrunt.hcl
 
-28 directories, 36 files
+28 directories, 37 files
 ```
