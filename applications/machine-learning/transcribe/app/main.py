@@ -13,11 +13,8 @@ def transcribe_audio(directory_path):
 
     full_transcription = ""
 
-    # Iterate over all .wav files in the directory, excluding audio/chunks
+    # Iterate over all .wav files in the directory
     for root, dirs, files in os.walk(directory_path):
-        if 'chunks' in dirs:
-            dirs.remove('chunks')  # Ignore the 'chunks' directory
-
         for file in files:
             if file.endswith(".wav"):
                 file_path = os.path.join(root, file)
