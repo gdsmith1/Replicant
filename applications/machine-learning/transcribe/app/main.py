@@ -2,46 +2,42 @@
 import os
 import speech_recognition as sr
 from pydub import AudioSegment
+import nltk
 
-def transcribe_audio(file_path):
+def transcribe_audio(directory_path):
     print("Initialized...")
 
     # Initialize recognizer
     recognizer = sr.Recognizer()
     print("Transcribing audio...")
 
-    # Load the audio file
-    audio = AudioSegment.from_wav(file_path)
-    chunk_length_ms = 30000  # 30 seconds
-    chunks = [audio[i:i + chunk_length_ms] for i in range(0, len(audio), chunk_length_ms)]
-
-    # Create directory for audio chunks if it doesn't exist
-    os.makedirs('chunks', exist_ok=True)
-
     full_transcription = ""
 
-    for i, chunk in enumerate(chunks):
-        chunk_file = f"audio/chunks/chunk{i}.wav"
-        chunk.export(chunk_file, format="wav")
+    # Iterate over all .wav files in the directory, excluding audio/chunks
+    for root, dirs, files in os.walk(directory_path):
+        if 'chunks' in dirs:
+            dirs.remove('chunks')  # Ignore the 'chunks' directory
 
-        with sr.AudioFile(chunk_file) as source:
-            audio_data = recognizer.record(source)
+        for file in files:
+            if file.endswith(".wav"):
+                file_path = os.path.join(root, file)
+                print(f"Processing file: {file_path}")
 
-        # Transcribe the audio chunk
-        try:
-            text = recognizer.recognize_google(audio_data)
-            full_transcription += text + " "
-            print(f"Chunk {i} Transcription: ", text)
-        except sr.UnknownValueError:
-            print(f"Google Speech Recognition could not understand chunk {i}")
-        except sr.RequestError as e:
-            print(f"Could not request results from Google Speech Recognition service for chunk {i}; {e}")
+                with sr.AudioFile(file_path) as source:
+                    audio_data = recognizer.record(source)
 
-    print("Full Transcription: ", full_transcription.strip())
+                # Transcribe the audio file
+                try:
+                    text = recognizer.recognize_google(audio_data)
+                    full_transcription += text + ".\n"
+                except sr.UnknownValueError:
+                    print(f"Google Speech Recognition could not understand file {file}")
+                except sr.RequestError as e:
+                    print(f"Could not request results from Google Speech Recognition service for file {file}; {e}")
 
-    # Delete chunk files
-    for i in range(len(chunks)):
-        os.remove(f"chunks/chunk{i}.wav")
+    # Write the full transcription to a file
+    with open("transcription.txt", "w") as f:
+        f.write(full_transcription.strip())
 
 if __name__ == "__main__":
-    transcribe_audio('audio/Trump.wav')
+    transcribe_audio('audio')

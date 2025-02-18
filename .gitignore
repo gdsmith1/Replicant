@@ -1,12 +1,16 @@
 # Local env files
 *.env
 
-# Collector bot
+# Binary files
 node_modules/
+venv/
+
+# Artifacts
 *.wav
+*.txt
+*.jsonl
 
 # AI Trainer
-venv/
 
 # Terragrunt/Terraform
 .terragrunt-cache/

@@ -13,6 +13,8 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const CHANNEL_ID = process.env.VOICE_CHANNEL_ID;
 const USER_ID = process.env.TARGET_USER_ID;
 const S3_BUCKET_NAME = "replicant-s3-bucket"; // Set in terraform
+const timeLimit = process.env.TIME_LIMIT || 600000; // 10 minutes
+const speakingLimit = process.env.SPEAKING_LIMIT || 5000; // 5 seconds
 
 // Load AWS credentials from environment variables
 const s3Client = new S3Client({ 
@@ -44,6 +46,8 @@ client.once('ready', async () => {
     });
 });
 
+let isRecording = false;
+
 async function recordAudio(connection) {
     console.log('Recording started.');
     const receiver = connection.receiver;
@@ -53,32 +57,49 @@ async function recordAudio(connection) {
         fs.mkdirSync(audioDir);
     }
 
-    const audioStream = receiver.subscribe(USER_ID, {
-        end: {
-            behavior: EndBehaviorType.Manual,
-        },
-    });
-
-    const outputPath = path.join(audioDir, `${USER_ID}-${Date.now()}.wav`);
-    const fileWriter = new wav.FileWriter(outputPath, {
-        sampleRate: 48000,
-        channels: 2,
-    });
-
-    const pcmStream = new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 });
-    audioStream.pipe(pcmStream).pipe(fileWriter);
-
-    fileWriter.on('finish', async () => {
-        console.log('Recording finished.');
-        await uploadToS3(outputPath);
-        connection.destroy();
+    const stopRecording = setTimeout(() => {
+        console.log('Stopping recording after 2 minutes.');
+        connection.disconnect();
         client.destroy();
-    });
+    }, timeLimit); // Stop recording anything after this time
 
-    setTimeout(() => {
-        console.log('Stopping recording.');
-        fileWriter.end();
-    }, 60000); // Adjust the duration as needed
+    receiver.speaking.on('start', userId => { // Record speaking events
+        if (userId === USER_ID && !isRecording) { // Only record the target user and if not already recording
+            isRecording = true;
+            const startTime = Date.now();
+            const outputPath = path.join(audioDir, `${USER_ID}-${startTime}.wav`);
+            const fileWriter = new wav.FileWriter(outputPath, {
+                sampleRate: 48000,
+                channels: 2,
+            });
+
+            const audioStream = receiver.subscribe(USER_ID, {
+                end: {
+                    behavior: EndBehaviorType.Manual,
+                },
+            });
+
+            const pcmStream = new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 });
+            audioStream.pipe(pcmStream).pipe(fileWriter);
+
+            fileWriter.on('finish', async () => {
+                const duration = (Date.now() - startTime) / 1000;
+                if (duration > 0.25) { // Arbitrary minimum duration for a valid recording
+                    console.log('Recording finished.');
+                    await uploadToS3(outputPath);
+                } else {
+                    console.log('Recording too short, deleting file.');
+                    fs.unlinkSync(outputPath);
+                }
+            });
+
+            setTimeout(() => {
+                console.log('Stopping recording for this speaking event.');
+                fileWriter.end();
+                isRecording = false;
+            }, speakingLimit); // Time for each speaking event
+        }
+    });
 }
 
 async function uploadToS3(filePath) {
