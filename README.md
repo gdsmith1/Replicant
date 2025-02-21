@@ -31,35 +31,28 @@ Create a `.env` file with the following contents:
 .
 ├── .github
 │   └── workflows
-│       └── main.yaml
+│       ├── docker.yaml
+│       └── readme.yaml
 ├── .gitignore
 ├── LICENSE
-├── README.md
 ├── applications
 │   ├── collector-bot
 │   │   ├── Dockerfile
-│   │   ├── README.md
 │   │   ├── audio
-│   │   │   └── README.md
 │   │   ├── index.js
 │   │   ├── package-lock.json
 │   │   └── package.json
 │   ├── llm
 │   │   ├── Dockerfile
-│   │   ├── README.md
 │   │   ├── main.py
 │   │   └── requirements.md
 │   ├── transcribe
 │   │   ├── Dockerfile
-│   │   ├── README.md
 │   │   ├── audio
-│   │   │   └── README.md
 │   │   ├── main.py
 │   │   └── requirements.md
 │   └── tts
-│       ├── README.md
 │       └── audio
-│           └── README.md
 ├── infra
 │   └── artifact-s3
 │       ├── main.tf
@@ -68,5 +61,5 @@ Create a `.env` file with the following contents:
 │       └── variables.tf
 └── terragrunt.hcl
 
-13 directories, 26 files
+13 directories, 19 files
 ```
