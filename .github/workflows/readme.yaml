@@ -42,7 +42,7 @@ jobs:
           persist-credentials: false
 
       - name: Generate file structure
-        run:  tree -aI '.git|file_structure.txt' > file_structure.txt
+        run:  tree -aI '.git|file_structure.txt|README.md' > file_structure.txt
 
       - name: Update README.md
         run: |
