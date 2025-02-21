@@ -10,8 +10,6 @@ venv/
 *.txt
 *.jsonl
 
-# AI Trainer
-
 # Terragrunt/Terraform
 .terragrunt-cache/
 .terraform/

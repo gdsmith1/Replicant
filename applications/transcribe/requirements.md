@@ -1,9 +1,16 @@
 audioop-lts==0.2.1
+boto3==1.36.25
+botocore==1.36.25
 cffi==1.17.1
+jmespath==1.0.1
 pycparser==2.22
 pydub==0.25.1
+python-dateutil==2.9.0.post0
+s3transfer==0.11.2
+six==1.17.0
 sounddevice==0.5.1
 SpeechRecognition==3.14.1
 standard-aifc==3.13.0
 standard-chunk==3.13.0
 typing_extensions==4.12.2
+urllib3==2.3.0

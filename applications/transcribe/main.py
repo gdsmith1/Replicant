@@ -1,8 +1,23 @@
 # needs ffmpeg installed
 import os
+import boto3
 import speech_recognition as sr
-from pydub import AudioSegment
-import nltk
+
+def download_files_from_s3(bucket_name, local_directory):
+    s3 = boto3.client('s3')
+    paginator = s3.get_paginator('list_objects_v2')
+    for page in paginator.paginate(Bucket=bucket_name):
+        for obj in page.get('Contents', []):
+            key = obj['Key']
+            if key.endswith('.wav'):
+                local_path = os.path.join(local_directory, os.path.basename(key))
+                s3.download_file(bucket_name, key, local_path)
+                print(f"Downloaded {key} to {local_path}")
+
+def upload_file_to_s3(bucket_name, file_path, s3_key):
+    s3 = boto3.client('s3')
+    s3.upload_file(file_path, bucket_name, s3_key)
+    print(f"Uploaded {file_path} to s3://{bucket_name}/{s3_key}")
 
 def transcribe_audio(directory_path):
     print("Initialized...")
@@ -37,4 +52,6 @@ def transcribe_audio(directory_path):
         f.write(full_transcription.strip())
 
 if __name__ == "__main__":
+    download_files_from_s3('replicant-s3-bucket', 'audio')
     transcribe_audio('audio')
+    upload_file_to_s3('replicant-s3-bucket', 'transcription.txt', 'transcription.txt')

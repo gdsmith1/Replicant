@@ -3,9 +3,15 @@ import jsonlines
 from datetime import datetime
 import re
 import requests
+import boto3
 
 # Load your API key from an environment variable or secret management service
 client = OpenAI()
+
+def download_file_from_s3(bucket_name, s3_key, local_path):
+    s3 = boto3.client('s3')
+    s3.download_file(bucket_name, s3_key, local_path)
+    print(f"Downloaded {s3_key} to {local_path}")
 
 # Fetch the list of inappropriate words from the URL
 response = requests.get("https://raw.githubusercontent.com/Hesham-Elbadawi/list-of-banned-words/refs/heads/master/en")
@@ -18,6 +24,7 @@ def censor_content(content):
     return content
 
 # Read the transcription file
+download_file_from_s3('replicant-s3-bucket', 'transcription.txt', 'transcription.txt')
 with open("transcription.txt", "r") as file:
     transcription = file.read()
 
