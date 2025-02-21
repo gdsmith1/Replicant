@@ -18,27 +18,8 @@ jobs:
       - name: Install tree
         run: sudo apt-get install -y tree
 
-      - name: Generate a Token
-        id: app-token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ vars.GH_APP_ID }}
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
-      - name: Use the Token
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: |
-             git config --global url."https://git:${GH_TOKEN}@github.com".insteadOf https://github.com
-             git config --global user.name '${{ github.actor }}'
-             git config --global user.email '${{ github.actor }}@users.noreply.github.com'
-
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          persist-credentials: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -48,24 +29,32 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ steps.app-token.outputs.token }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push collector-bot image
-        run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/collector-bot:latest ./applications/collector-bot
-          docker push ghcr.io/${{ github.repository_owner }}/collector-bot:latest
+        uses: docker/build-push-action@v4
+        with:
+          context: ./applications/collector-bot
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/replicant/collector-bot:latest
 
       - name: Build and push llm image
-        run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/llm:latest ./applications/llm
-          docker push ghcr.io/${{ github.repository_owner }}/llm:latest
+        uses: docker/build-push-action@v4
+        with:
+          context: ./applications/llm
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/replicant/llm:latest
 
       - name: Build and push transcribe image
-        run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/transcribe:latest ./applications/transcribe
-          docker push ghcr.io/${{ github.repository_owner }}/transcribe:latest
+        uses: docker/build-push-action@v4
+        with:
+          context: ./applications/transcribe
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/replicant/transcribe:latest
 
-      - name: Build and push tts image
-        run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/tts:latest ./applications/tts
-          docker push ghcr.io/${{ github.repository_owner }}/tts:latest
+    #   - name: Build and push tts image
+    #     uses: docker/build-push-action@v4
+    #     with:
+    #       context: ./applications/tts
+    #       push: true
+    #       tags: ghcr.io/${{ github.repository_owner }}/replicant/tts:latest
