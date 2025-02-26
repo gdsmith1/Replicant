@@ -19,11 +19,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install tree
-        run: sudo apt-get install -y tree
-
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install tree
+        run: sudo apt-get install -y tree
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -35,24 +37,60 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check for changes in collector-bot
+        id: collector-bot-changes
+        run: |
+          if git diff --quiet HEAD~1 HEAD -- applications/collector-bot/; then
+            echo "no changes"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes detected"
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
       - name: Build and push collector-bot image
-        if: contains(github.event.head_commit.message, 'applications/collector-bot/')
+        if: steps.collector-bot-changes.outputs.changes == 'true'
         uses: docker/build-push-action@v4
         with:
           context: ./applications/collector-bot
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/replicant/collector-bot:latest
 
+      - name: Check for changes in llm
+        id: llm-changes
+        run: |
+          if git diff --quiet HEAD~1 HEAD -- applications/llm/; then
+            echo "no changes"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes detected"
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
       - name: Build and push llm image
-        if: contains(github.event.head_commit.message, 'applications/llm/')
+        if: steps.llm-changes.outputs.changes == 'true'
         uses: docker/build-push-action@v4
         with:
           context: ./applications/llm
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/replicant/llm:latest
 
+      - name: Check for changes in transcribe
+        id: transcribe-changes
+        run: |
+          if git diff --quiet HEAD~1 HEAD -- applications/transcribe/; then
+            echo "no changes"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes detected"
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
       - name: Build and push transcribe image
-        if: contains(github.event.head_commit.message, 'applications/transcribe/')
+        if: steps.transcribe-changes.outputs.changes == 'true'
         uses: docker/build-push-action@v4
         with:
           context: ./applications/transcribe
