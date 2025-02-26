@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'applications/collector-bot/**'
+      - 'applications/llm/**'
+      - 'applications/transcribe/**'
 
 permissions:
   contents: read
@@ -32,6 +36,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push collector-bot image
+        if: contains(github.event.head_commit.message, 'applications/collector-bot/')
         uses: docker/build-push-action@v4
         with:
           context: ./applications/collector-bot
@@ -39,6 +44,7 @@ jobs:
           tags: ghcr.io/${{ github.repository_owner }}/replicant/collector-bot:latest
 
       - name: Build and push llm image
+        if: contains(github.event.head_commit.message, 'applications/llm/')
         uses: docker/build-push-action@v4
         with:
           context: ./applications/llm
@@ -46,15 +52,9 @@ jobs:
           tags: ghcr.io/${{ github.repository_owner }}/replicant/llm:latest
 
       - name: Build and push transcribe image
+        if: contains(github.event.head_commit.message, 'applications/transcribe/')
         uses: docker/build-push-action@v4
         with:
           context: ./applications/transcribe
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/replicant/transcribe:latest
-
-    #   - name: Build and push tts image
-    #     uses: docker/build-push-action@v4
-    #     with:
-    #       context: ./applications/tts
-    #       push: true
-    #       tags: ghcr.io/${{ github.repository_owner }}/replicant/tts:latest
