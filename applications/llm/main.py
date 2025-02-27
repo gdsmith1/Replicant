@@ -92,3 +92,4 @@ if __name__ == "__main__":
     customsuffix = datetime.now().strftime("%Y%m%d%H%M%S")
     modelresponse = create_fine_tuning_job(client, fileresponse.id, "gpt-3.5-turbo", customsuffix)
     print("Fine-tuned model created:", modelresponse)
+ 

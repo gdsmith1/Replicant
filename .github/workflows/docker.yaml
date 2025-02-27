@@ -105,4 +105,4 @@ jobs:
           context: ./applications/transcribe
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/replicant/transcribe:latest
-          platforms: linux/arm64/v8,linux/amd64
+          platforms: linux/arm64/v8,linux/arm64,linux/amd64
