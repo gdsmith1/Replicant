@@ -1,0 +1,32 @@
+services:
+  collector-bot:
+    image: ghcr.io/gdsmith1/replicant/collector-bot:latest
+    environment:
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - VOICE_CHANNEL_ID=${VOICE_CHANNEL_ID}
+      - TARGET_USER_ID=${TARGET_USER_ID}
+      - TIME_LIMIT=${TIME_LIMIT}
+      - SPEAKING_LIMIT=${SPEAKING_LIMIT}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+  llm:
+    image: ghcr.io/gdsmith1/replicant/llm:latest
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - TIME_LIMIT=${TIME_LIMIT}
+
+  transcribe:
+    image: ghcr.io/gdsmith1/replicant/transcribe:latest
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - TIME_LIMIT=${TIME_LIMIT}
+
+  clockwatch:
+    image: gdsmith1/clockwatch:latest
+    environment:
+      - DISCORD_TOKEN=${DISCORD_BOT_TOKEN}
