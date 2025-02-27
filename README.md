@@ -53,8 +53,7 @@ Create a `.env` file with the following contents:
 │   │   ├── Dockerfile
 │   │   ├── audio
 │   │   ├── main.py
-│   │   ├── requirements.md
-│   │   └── test
+│   │   └── requirements.md
 │   └── tts
 │       └── audio
 ├── infra
@@ -65,5 +64,5 @@ Create a `.env` file with the following contents:
 │       └── variables.tf
 └── terragrunt.hcl
 
-13 directories, 20 files
+13 directories, 19 files
 ```
