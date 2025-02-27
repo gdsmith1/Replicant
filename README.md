@@ -56,6 +56,7 @@ Create a `.env` file with the following contents:
 │   │   └── requirements.md
 │   └── tts
 │       └── audio
+├── docker-compose.yaml
 ├── infra
 │   └── artifact-s3
 │       ├── main.tf
@@ -64,5 +65,5 @@ Create a `.env` file with the following contents:
 │       └── variables.tf
 └── terragrunt.hcl
 
-13 directories, 19 files
+13 directories, 20 files
 ```
