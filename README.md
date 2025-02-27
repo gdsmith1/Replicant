@@ -1,6 +1,7 @@
 # Replicant
 
 ## Requirements
+
 ### Tooling
 To run a Replicant session, you will need all of the following tools installed: (Makefile coming soonTM)
 * AWS CLI
