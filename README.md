@@ -63,7 +63,7 @@ Create a `.env` file with the following contents:
 │       ├── outputs.tf
 │       ├── terragrunt.hcl
 │       └── variables.tf
-└── terragrunt.hcl
+└── root.hcl
 
 13 directories, 20 files
 ```
