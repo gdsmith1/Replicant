@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     libsndfile1 \
     sox \
+    flac \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements file into the container
