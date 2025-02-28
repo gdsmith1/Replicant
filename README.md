@@ -23,8 +23,8 @@ Create a `.env` file with the following contents:
 * DISCORD_BOT_TOKEN: A discord bot token with administrator access (can be more fine-grained, but I haven't tested the minimum requirements)
 * VOICE_CHANNEL_ID: The discord voice channel you wish to observe
 * TARGET_USER_ID: The discord user you wish to observe
-* TIME_LIMIT: The amount of time (in ms) you want the collector bot to run.  More time means more voicelines recorded, and a more detailed model generated.  Defaults to 10 minutes.  (For dev purposes, I usually run for only about 2 minutes.  For a full session, I run it for a full day, to try and cover the target user's full time online.)
-* SPEAKING_LIMIT: The amount of time (in ms) each 'sentence' will be recorded for.  This is dependent on how the actual user tends to speak, and took some rough estimation to get a decent value.  Defaults to 5 seconds.  (I found the best results are usually between 7.5 and 10 seconds)
+* TIME_LIMIT: The amount of time (in seconds) you want the collector bot to run.  More time means more voicelines recorded, and a more detailed model generated.  Defaults to 10 minutes.  (For dev purposes, I usually run for only about 2 minutes.  For a full session, I run it for a full day, to try and cover the target user's full time online.)
+* SPEAKING_LIMIT: The amount of time (in seconds) each 'sentence' will be recorded for.  This is dependent on how the actual user tends to speak, and took some rough estimation to get a decent value.  Defaults to 5 seconds.  (I found the best results are usually between 7.5 and 10 seconds)
 * AWS_ACCESS_KEY_ID: Access key ID for your AWS account (Likely needs to have a card attached.)
 * AWS_SECRET_ACCESS_KEY: Secret access key for your AWS account
 * OPENAI_API_KEY: Open AI API key to a funded account.  (Average pricing TBD.)

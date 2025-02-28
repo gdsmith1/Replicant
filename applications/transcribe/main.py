@@ -55,8 +55,8 @@ def transcribe_audio(files):
         f.write(full_transcription.strip())
 
 if __name__ == "__main__":
-    TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600000'))
-    end_time = time.time() + (TIME_LIMIT / 1000) + 120  # Convert TIME_LIMIT to seconds and add 2 minutes
+    TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
+    end_time = time.time() + TIME_LIMIT + 120  # Add 2 minutes as a buffer for late uploads
 
     downloaded_files = set()
 

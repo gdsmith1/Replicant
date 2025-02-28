@@ -13,8 +13,8 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const CHANNEL_ID = process.env.VOICE_CHANNEL_ID;
 const USER_ID = process.env.TARGET_USER_ID;
 const S3_BUCKET_NAME = "replicant-s3-bucket"; // Set in terraform
-const timeLimit = process.env.TIME_LIMIT || 600000; // 10 minutes
-const speakingLimit = process.env.SPEAKING_LIMIT || 5000; // 5 seconds
+const timeLimit = (process.env.TIME_LIMIT || 600) * 1000; // 10 minutes in seconds
+const speakingLimit = (process.env.SPEAKING_LIMIT || 5) * 1000; // 5 seconds in seconds
 
 // Load AWS credentials from environment variables
 const s3Client = new S3Client({ 
@@ -58,7 +58,7 @@ async function recordAudio(connection) {
     }
 
     const stopRecording = setTimeout(() => {
-        console.log('Stopping recording after 2 minutes.');
+        console.log('Time limit reached!');
         connection.disconnect();
         client.destroy();
     }, timeLimit); // Stop recording anything after this time
@@ -120,4 +120,3 @@ async function uploadToS3(filePath) {
 }
 
 client.login(TOKEN);
- 

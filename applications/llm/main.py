@@ -69,9 +69,9 @@ if __name__ == "__main__":
     client = OpenAI()
 
     # Wait for the transcription file to be available
-    TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600000'))
+    TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
     print("Waiting for transcription file to be available...")
-    time.sleep(TIME_LIMIT / 1000 + 120)  # Convert TIME_LIMIT to seconds and add 2 minutes
+    time.sleep(TIME_LIMIT + 120)  # Wait for the transcription to finish to start looking
 
     # Download the transcription file
     while not os.path.exists('transcription.txt'):
