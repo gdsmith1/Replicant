@@ -17,6 +17,9 @@ permissions:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [collector-bot, llm, transcribe]
 
     steps:
       - name: Checkout repository
@@ -44,10 +47,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check for changes in collector-bot
-        id: collector-bot-changes
+      - name: Check for changes in ${{ matrix.app }}
+        id: changes
         run: |
-          if git diff --quiet HEAD~1 HEAD -- applications/collector-bot/; then
+          if git diff --quiet HEAD~1 HEAD -- applications/${{ matrix.app }}/; then
             echo "no changes"
             echo "changes=false" >> $GITHUB_OUTPUT
           else
@@ -56,53 +59,11 @@ jobs:
           fi
         shell: bash
 
-      - name: Build and push collector-bot image
-        if: steps.collector-bot-changes.outputs.changes == 'true'
+      - name: Build and push ${{ matrix.app }} image
+        if: steps.changes.outputs.changes == 'true'
         uses: docker/build-push-action@v4
         with:
-          context: ./applications/collector-bot
+          context: ./applications/${{ matrix.app }}
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/replicant/collector-bot:latest
+          tags: ghcr.io/${{ github.repository_owner }}/replicant/${{ matrix.app }}:latest
           platforms: linux/arm64/v8,linux/amd64
-
-      - name: Check for changes in llm
-        id: llm-changes
-        run: |
-          if git diff --quiet HEAD~1 HEAD -- applications/llm/; then
-            echo "no changes"
-            echo "changes=false" >> $GITHUB_OUTPUT
-          else
-            echo "changes detected"
-            echo "changes=true" >> $GITHUB_OUTPUT
-          fi
-        shell: bash
-
-      - name: Build and push llm image
-        if: steps.llm-changes.outputs.changes == 'true'
-        uses: docker/build-push-action@v4
-        with:
-          context: ./applications/llm
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/replicant/llm:latest
-          platforms: linux/arm64/v8,linux/amd64
-
-      - name: Check for changes in transcribe
-        id: transcribe-changes
-        run: |
-          if git diff --quiet HEAD~1 HEAD -- applications/transcribe/; then
-            echo "no changes"
-            echo "changes=false" >> $GITHUB_OUTPUT
-          else
-            echo "changes detected"
-            echo "changes=true" >> $GITHUB_OUTPUT
-          fi
-        shell: bash
-
-      - name: Build and push transcribe image
-        if: steps.transcribe-changes.outputs.changes == 'true'
-        uses: docker/build-push-action@v4
-        with:
-          context: ./applications/transcribe
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/replicant/transcribe:latest
-          platforms: linux/arm64/v8,linux/arm64,linux/amd64

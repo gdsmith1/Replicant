@@ -1,6 +1,8 @@
 annotated-types==0.7.0
 anyio==4.8.0
 attrs==25.1.0
+boto3==1.36.25
+botocore==1.36.25
 certifi==2025.1.31
 charset-normalizer==3.4.1
 distro==1.9.0
@@ -9,11 +11,15 @@ httpcore==1.0.7
 httpx==0.28.1
 idna==3.10
 jiter==0.8.2
+jmespath==1.0.1
 jsonlines==4.0.0
 openai==1.63.2
 pydantic==2.10.6
 pydantic_core==2.27.2
+python-dateutil==2.9.0.post0
 requests==2.32.3
+s3transfer==0.11.2
+six==1.17.0
 sniffio==1.3.1
 tqdm==4.67.1
 typing_extensions==4.12.2
