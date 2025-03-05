@@ -1,6 +1,8 @@
 # Use the official Python image from the Docker Hub
 FROM python:3.13.2-slim
 
+RUN apt-get update && apt-get install -y
+
 # Copy the requirements file into the container
 COPY requirements.md .
 

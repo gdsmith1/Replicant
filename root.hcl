@@ -13,3 +13,7 @@ remote_state {
     dynamodb_table = "replicant-lock-table"
   }
 }
+
+inputs = {
+  terragrunt_dir = get_terragrunt_dir()
+}
