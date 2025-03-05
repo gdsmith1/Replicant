@@ -42,6 +42,7 @@ Create a `.env` file with the following contents:
 │       └── readme.yaml
 ├── .gitignore
 ├── LICENSE
+├── Makefile
 ├── applications
 │   ├── collector-bot
 │   │   ├── Dockerfile
@@ -62,12 +63,17 @@ Create a `.env` file with the following contents:
 │       └── audio
 ├── docker-compose.yaml
 ├── infra
-│   └── artifact-s3
+│   ├── artifact-s3
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   ├── terragrunt.hcl
+│   │   └── variables.tf
+│   └── runner-ec2
 │       ├── main.tf
 │       ├── outputs.tf
 │       ├── terragrunt.hcl
 │       └── variables.tf
 └── root.hcl
 
-13 directories, 20 files
+14 directories, 25 files
 ```
