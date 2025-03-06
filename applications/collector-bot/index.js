@@ -24,6 +24,10 @@ const s3Client = new S3Client({
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     }
 });
+
+let deletedFilesCount = 0;
+let successfulFilesCount = 0;
+
 client.once('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`);
 
@@ -46,8 +50,6 @@ client.once('ready', async () => {
     });
 });
 
-let isRecording = false;
-
 async function recordAudio(connection) {
     console.log('Recording started.');
     const receiver = connection.receiver;
@@ -61,10 +63,18 @@ async function recordAudio(connection) {
         console.log('Time limit reached!');
         connection.disconnect();
         client.destroy();
+        console.log(`Total deleted files: ${deletedFilesCount}`);
+        console.log(`Total successful files: ${successfulFilesCount}`);
     }, timeLimit); // Stop recording anything after this time
 
+    let isRecording = false;
+    let recordingTimeout; // Add this line to store the timeout ID
+
+    // This event is triggered when a user starts speaking, and should only do anything if the user is the target user and not already recording.
     receiver.speaking.on('start', userId => { // Record speaking events
-        if (userId === USER_ID && !isRecording) { // Only record the target user and if not already recording
+        console.log(`User ${userId} started speaking.`);
+        if (!isRecording && userId === USER_ID) {
+            console.log('Listening...');
             isRecording = true;
             const startTime = Date.now();
             const outputPath = path.join(audioDir, `${USER_ID}-${startTime}.wav`);
@@ -82,40 +92,71 @@ async function recordAudio(connection) {
             const pcmStream = new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 });
             audioStream.pipe(pcmStream).pipe(fileWriter);
 
+            // Clear any existing timeout before setting a new one
+            if (recordingTimeout) {
+                clearTimeout(recordingTimeout);
+            }
+
+            // Stop recording sentence after a certain time
+            recordingTimeout = setTimeout(() => {
+                console.log('Stopping recording for this speaking event.');
+                fileWriter.end();
+                audioStream.destroy();
+                pcmStream.destroy();
+                isRecording = false;
+            }, speakingLimit); // Time for each speaking event
+
+            // When the speaking event ends, stop recording and upload the file to S3
             fileWriter.on('finish', async () => {
-                const duration = (Date.now() - startTime) / 1000;
-                if (duration > 0.25) { // Arbitrary minimum duration for a valid recording
+                const fileSize = fs.statSync(outputPath).size / 1024; // File size in KB
+                console.log(`File size: ${fileSize.toFixed(2)} KB.`);
+                if (fileSize > 4) { // Minimum file size for a valid recording
                     console.log('Recording finished.');
                     await uploadToS3(outputPath);
+                    successfulFilesCount++;
                 } else {
                     console.log('Recording too short, deleting file.');
                     fs.unlinkSync(outputPath);
+                    deletedFilesCount++;
                 }
+                isRecording = false; // Reset the flag here
             });
 
-            setTimeout(() => {
-                console.log('Stopping recording for this speaking event.');
-                fileWriter.end();
+            // Log any errors that occur during the recording process
+            fileWriter.on('error', (error) => {
+                console.error('Error during recording:', error);
                 isRecording = false;
-            }, speakingLimit); // Time for each speaking event
+            });
+
+            audioStream.on('error', (error) => {
+                console.error('Error with audio stream:', error);
+                isRecording = false;
+            });
+
+            pcmStream.on('error', (error) => {
+                console.error('Error with PCM stream:', error);
+                isRecording = false;
+            });
+        } else {
+            console.log('Already recording, ignoring this speaking event.');
         }
     });
-}
 
-async function uploadToS3(filePath) {
-    const fileContent = fs.readFileSync(filePath);
-    const params = {
-        Bucket: S3_BUCKET_NAME,
-        Key: path.basename(filePath),
-        Body: fileContent,
-    };
+    async function uploadToS3(filePath) {
+        const fileContent = fs.readFileSync(filePath);
+        const params = {
+            Bucket: S3_BUCKET_NAME,
+            Key: path.basename(filePath),
+            Body: fileContent,
+        };
 
-    try {
-        const command = new PutObjectCommand(params);
-        await s3Client.send(command);
-        console.log(`File uploaded successfully to ${S3_BUCKET_NAME}/audio/${path.basename(filePath)}`);
-    } catch (error) {
-        console.error('Error uploading file:', error);
+        try {
+            const command = new PutObjectCommand(params);
+            await s3Client.send(command);
+            console.log(`File uploaded successfully to ${S3_BUCKET_NAME}/audio/${path.basename(filePath)}`);
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        }
     }
 }
 

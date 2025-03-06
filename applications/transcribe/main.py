@@ -44,6 +44,7 @@ def transcribe_audio(files):
         # Transcribe the audio file
         try:
             text = recognizer.recognize_google(audio_data)
+            print(f"Transcribed text: {text}")
             full_transcription += text + ".\n"
         except sr.UnknownValueError:
             print(f"Google Speech Recognition could not understand file {file_path}")
@@ -69,4 +70,3 @@ if __name__ == "__main__":
 
     upload_file_to_s3('replicant-s3-bucket', 'transcription.txt', 'transcription.txt')
     print("Transcription uploaded.")
- 
