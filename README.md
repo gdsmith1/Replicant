@@ -60,7 +60,10 @@ Create a `.env` file with the following contents:
 │   │   ├── main.py
 │   │   └── requirements.md
 │   └── tts
-│       └── audio
+│       ├── Dockerfile
+│       ├── audio
+│       ├── main.py
+│       └── requirements.md
 ├── docker-compose.yaml
 ├── infra
 │   ├── artifact-s3
@@ -75,5 +78,5 @@ Create a `.env` file with the following contents:
 │       └── variables.tf
 └── root.hcl
 
-14 directories, 25 files
+14 directories, 28 files
 ```
