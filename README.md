@@ -3,7 +3,6 @@
 [![Build and Publish Docker Images](https://github.com/gdsmith1/Replicant/actions/workflows/docker.yaml/badge.svg)](https://github.com/gdsmith1/Replicant/actions/workflows/docker.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-
 ## Requirements
 
 ### Tooling
@@ -11,7 +10,6 @@ To run a Replicant session, you will need all of the following tools installed: 
 * AWS CLI
 * Terraform
 * Terragrunt
-* Docker
 
 ### Resources
 [__AWS Access Keys__](https://us-east-1.console.aws.amazon.com/console/home): create the keys in AWS and use `aws configure` to enter them to be able to use them with terragrunt.  For continuity's sake, all infra is written for _us-east-1_.
