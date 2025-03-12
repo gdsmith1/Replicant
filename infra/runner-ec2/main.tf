@@ -12,11 +12,11 @@ resource "aws_vpc" "main" {
 }
 
 resource "aws_subnet" "public" {
-  count = length(var.public_subnet_cidrs)
-  vpc_id = aws_vpc.main.id
-  cidr_block = element(var.public_subnet_cidrs, count.index)
+  count                   = length(var.public_subnet_cidrs)
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = element(var.public_subnet_cidrs, count.index)
   map_public_ip_on_launch = true
-  availability_zone = element(var.availability_zones, count.index)
+  availability_zone       = element(var.availability_zones, count.index)
 }
 
 resource "aws_internet_gateway" "main" {
@@ -32,8 +32,8 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route_table_association" "public" {
-  count = length(var.public_subnet_cidrs)
-  subnet_id = element(aws_subnet.public.*.id, count.index)
+  count          = length(var.public_subnet_cidrs)
+  subnet_id      = element(aws_subnet.public.*.id, count.index)
   route_table_id = aws_route_table.public.id
 }
 
@@ -89,7 +89,13 @@ resource "aws_instance" "runner" {
 }
 
 resource "local_file" "private_key" {
-  content  = tls_private_key.ssh-key.private_key_pem
-  filename = "${var.terragrunt_dir}/generated-key.pem"
+  content         = tls_private_key.ssh-key.private_key_pem
+  filename        = "${var.terragrunt_dir}/generated-key.pem"
   file_permission = "0600"
+}
+
+resource "local_file" "runner_ip" {
+  content         = aws_instance.runner.public_ip
+  filename        = "${var.terragrunt_dir}/runner-ip.txt"
+  file_permission = "0644"
 }

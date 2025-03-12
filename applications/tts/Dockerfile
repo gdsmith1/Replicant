@@ -1,23 +1,25 @@
-FROM python:3.10
+# Use the official Python image from the Docker Hub
+FROM python:3.13.2-slim
 
-# Install necessary system dependencies
-RUN apt update && apt install -y \
+# Install system packages
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
     libsndfile1 \
-    build-essential \
-    cmake \
-    libopenblas-dev \
-    liblapack-dev \
-    gfortran
+    sox \
+    flac \
+    && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip and install Python dependencies
-RUN pip install --upgrade pip setuptools wheel
+# Copy the requirements file into the container
+COPY requirements.md .
 
-# Install PyTorch (CPU version) and TTS with specific versions
-RUN pip install torch==2.0.0 torchaudio==2.0.0 --index-url https://download.pytorch.org/whl/cpu
-RUN pip install TTS==0.10.0 numpy==1.22.4 scipy==1.8.0
+# Install the dependencies
+RUN pip install --no-cache-dir -r requirements.md
 
-# Copy the main.py script
-COPY main.py .
+# Copy the rest of the application code into the container
+COPY . .
 
-# Set the entrypoint to run the main.py script
-ENTRYPOINT ["python", "main.py"]
+# Set environment variable to prevent Python from buffering the output
+ENV PYTHONUNBUFFERED=1
+
+# Run the application
+CMD ["python", "main.py"]
