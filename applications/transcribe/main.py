@@ -1,15 +1,21 @@
-# needs ffmpeg installed
 import os
 import time
 import boto3
 import speech_recognition as sr
+from pydub import AudioSegment
 
-def delete_file_from_s3(bucket_name, s3_key):
-    """Delete a specific file from S3 bucket"""
+def delete_file(bucket_name, s3_key, local_path):
     try:
+        # Delete from S3
         s3 = boto3.client('s3')
         s3.delete_object(Bucket=bucket_name, Key=s3_key)
         print(f"Deleted {s3_key} from bucket {bucket_name}")
+
+        # Delete local file
+        if os.path.exists(local_path):
+            os.remove(local_path)
+            print(f"Deleted local file: {local_path}")
+
         return True
     except Exception as e:
         print(f"Error deleting {s3_key}: {str(e)}")
@@ -36,6 +42,23 @@ def upload_file_to_s3(bucket_name, file_path, s3_key):
     s3.upload_file(file_path, bucket_name, s3_key)
     print(f"Uploaded {file_path} to s3://{bucket_name}/{s3_key}")
 
+def combine_audio_files(successful_files, output_path="combined_audio.wav"):
+    if not successful_files:
+        return None
+
+    # Load the first file
+    combined = AudioSegment.from_wav(successful_files[0])
+
+    # Append the rest of the files
+    for audio_file in successful_files[1:]:
+        sound = AudioSegment.from_wav(audio_file)
+        combined += sound
+
+    # Export the combined audio
+    combined.export(output_path, format="wav")
+    print(f"Created combined audio file: {output_path}")
+    return output_path
+
 def transcribe_audio(files):
     print("Initialized...")
 
@@ -44,6 +67,7 @@ def transcribe_audio(files):
     print("Transcribing audio...")
 
     failed_files = []
+    successful_files = []
 
     # Iterate over all .wav files in the list
     for file_path, s3_key in files:
@@ -62,6 +86,9 @@ def transcribe_audio(files):
                 with open("transcription.txt", "a") as f:
                     f.write(f"{text}\n")
 
+                # Add to successful files list
+                successful_files.append(file_path)
+
             except sr.UnknownValueError:
                 print(f"Google Speech Recognition could not understand file {file_path}")
                 failed_files.append((file_path, s3_key))
@@ -72,15 +99,25 @@ def transcribe_audio(files):
             print(f"Error processing file {file_path}: {str(e)}")
             failed_files.append((file_path, s3_key))
 
-    # Clean up failed files from S3
-    for _, s3_key in failed_files:
-        delete_file_from_s3('replicant-s3-bucket', s3_key)
+    # Clean up failed files from both S3 and local storage
+    for local_path, s3_key in failed_files:
+        delete_file('replicant-s3-bucket', s3_key, local_path)
+
+    # Combine successful audio files
+    if successful_files:
+        combined_audio_path = combine_audio_files(successful_files)
+        if combined_audio_path:
+            upload_file_to_s3('replicant-s3-bucket', combined_audio_path, 'combined_audio.wav')
 
     return failed_files
 
 if __name__ == "__main__":
+    # Create necessary directories and files
+    if not os.path.exists("audio"):
+        os.makedirs("audio")
     if not os.path.exists("transcription.txt"):
-            open("transcription.txt", "w").close()
+        open("transcription.txt", "w").close()
+
     TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
     end_time = time.time() + TIME_LIMIT + 120  # Add 2 minutes as a buffer for late uploads
 
@@ -93,5 +130,6 @@ if __name__ == "__main__":
         print("Waiting for new files...")
         time.sleep(15)  # Wait for 15 seconds before checking for new files
 
+    # Upload final files to S3
     upload_file_to_s3('replicant-s3-bucket', 'transcription.txt', 'transcription.txt')
     print("Transcription uploaded.")
