@@ -63,7 +63,7 @@ resource "aws_security_group" "runner_sg" {
 }
 
 resource "aws_instance" "runner" {
-  ami                    = "ami-0007a29926925d0db" # Ubuntu 22.04 Minimal
+  ami                    = "ami-00020716a041292ac" # Ubuntu 22.04 Minimal
   instance_type          = "t2.micro"
   key_name               = aws_key_pair.generated_key.key_name
   vpc_security_group_ids = [aws_security_group.runner_sg.id]

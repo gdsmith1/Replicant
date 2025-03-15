@@ -3,8 +3,8 @@ start:
 	terragrunt run-all apply --non-interactive
 	@echo "Adding server to known_hosts..."
 	if ! grep -q "$$(cat ./infra/runner-ec2/runner-ip.txt)" ~/.ssh/known_hosts; then \
-    	echo "Waiting for instance to be ready..." \
-    	sleep 60 \
+		echo "Waiting for instance to be ready..."; \
+		sleep 60; \
 		echo "IP $$(cat ./infra/runner-ec2/runner-ip.txt) not found in known_hosts, adding it..."; \
 		ssh-keyscan -H "$$(cat ./infra/runner-ec2/runner-ip.txt)" >> ~/.ssh/known_hosts && \
 		echo "Added host to known_hosts"; \
@@ -19,7 +19,6 @@ start:
 	ssh -i infra/runner-ec2/generated-key.pem ubuntu@$$(cat ./infra/runner-ec2/runner-ip.txt) 'cd /home/ubuntu && sudo docker compose pull'
 	@echo "Running docker-compose up on EC2 instance..."
 	ssh -i infra/runner-ec2/generated-key.pem ubuntu@$$(cat ./infra/runner-ec2/runner-ip.txt) 'cd /home/ubuntu && sudo docker compose up -d'
-	ssh -i infra/runner-ec2/generated-key.pem ubuntu@$$(cat ./infra/runner-ec2/runner-ip.txt) 'echo "Hello server!" >> test.txt'
 
 stop:
 	@echo "Stopping docker-compose on EC2 instance..."
