@@ -46,13 +46,21 @@ def combine_audio_files(successful_files, output_path="combined_audio.wav"):
     if not successful_files:
         return None
 
+    print(f"Combining {len(successful_files)} audio files:")
+    for file in successful_files:
+        print(f"- {file}")
+
     # Load the first file
     combined = AudioSegment.from_wav(successful_files[0])
+    print(f"Initial audio length: {len(combined)} ms")
 
     # Append the rest of the files
     for audio_file in successful_files[1:]:
         sound = AudioSegment.from_wav(audio_file)
-        combined += sound
+        print(f"Adding file of length: {len(sound)} ms")
+        combined = combined + sound
+
+    print(f"Final combined audio length: {len(combined)} ms")
 
     # Export the combined audio
     combined.export(output_path, format="wav")

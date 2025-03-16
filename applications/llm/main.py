@@ -12,6 +12,14 @@ def download_file_from_s3(bucket_name, s3_key, local_path):
     s3.download_file(bucket_name, s3_key, local_path)
     print(f"Downloaded {s3_key} to {local_path}")
 
+def upload_file_to_s3(bucket_name, file_path, s3_key):
+    try:
+        s3 = boto3.client('s3')
+        s3.upload_file(file_path, bucket_name, s3_key)
+        print(f"Uploaded {file_path} to s3://{bucket_name}/{s3_key}")
+    except Exception as e:
+        print(f"Error uploading file to S3: {e}")
+
 def fetch_inappropriate_words(url):
     response = requests.get(url)
     return response.text.splitlines()
@@ -92,4 +100,7 @@ if __name__ == "__main__":
     customsuffix = datetime.now().strftime("%Y%m%d%H%M%S")
     modelresponse = create_fine_tuning_job(client, fileresponse.id, "gpt-3.5-turbo", customsuffix)
     print("Fine-tuned model created:", modelresponse)
- 
+
+    # Upload the fine-tuning dataset to S3
+    dataset_s3_key = f'fine_tune_dataset_{customsuffix}.jsonl'
+    upload_file_to_s3('replicant-s3-bucket', 'fine_tune_dataset.jsonl', dataset_s3_key)
