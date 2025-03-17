@@ -5,9 +5,10 @@ on:
     branches:
       - main
     paths:
-      - 'applications/collector-bot/**'
-      - 'applications/llm/**'
-      - 'applications/transcribe/**'
+      - "applications/collector-bot/**"
+      - "applications/llm/**"
+      - "applications/transcribe/**"
+      - "applications/tts/**"
 
 permissions:
   contents: read
@@ -19,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: [collector-bot, llm, transcribe]
+        app: [collector-bot, llm, transcribe, tts]
 
     steps:
       - name: Checkout repository

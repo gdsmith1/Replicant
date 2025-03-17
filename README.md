@@ -5,20 +5,22 @@
 
 ## Requirements
 
-### Tooling
+### Local Tooling
 To run a Replicant session, you will need all of the following tools installed: (Makefile coming soonTM)
 * AWS CLI
 * Terraform
 * Terragrunt
 
-### Resources
+### API Resources
 [__AWS Access Keys__](https://us-east-1.console.aws.amazon.com/console/home): create the keys in AWS and use `aws configure` to enter them to be able to use them with terragrunt.  For continuity's sake, all infra is written for _us-east-1_.
 
-[__Discord Bot__](https://discord.com/developers/applications): create a discord bot from the developer portal and add it to your discord server.  I used administrator permissions to develop, but this is not a recommended approach for security. 
+[__Discord Bot__](https://discord.com/developers/applications): create a discord bot from the developer portal and add it to your discord server.  I used administrator permissions to develop, but this is not a recommended approach for security.
 
 [__Discord Server__](https://discord.com): Ensure that the users in your server will not disconnect the bot while it is running!
 
-[__Open AI API Key__](https://platform.openai.com/docs/overview): create a key on OpenAI API to be used for the LLM generation and usage.
+[__Open AI API Key__](https://platform.openai.com/docs/overview): create a key on OpenAI API to be used for the LLM generation and usage.  You have to put money into the account to be able to use the API.  I put $5 in and never got close to that limit, but YMMV.
+
+[__Eleven Labs API Key__](https://elevenlabs.io/app/home): create a key on Eleven Labs API to be used for the text-to-speech generation and usage.  You will need at least the Starter Plan ($5 monthly) to be able to use Instant Voice Cloning.  I used the Creator Plan to be safe.
 
 ### Environment
 Create a `.env` file with the following contents:
@@ -29,7 +31,8 @@ Create a `.env` file with the following contents:
 * SPEAKING_LIMIT: The amount of time (in seconds) each 'sentence' will be recorded for.  This is dependent on how the actual user tends to speak, and took some rough estimation to get a decent value.  Defaults to 5 seconds.  (I found the best results are usually between 7.5 and 10 seconds)
 * AWS_ACCESS_KEY_ID: Access key ID for your AWS account (Likely needs to have a card attached.)
 * AWS_SECRET_ACCESS_KEY: Secret access key for your AWS account
-* OPENAI_API_KEY: Open AI API key to a funded account.  (Average pricing TBD.)
+* OPENAI_API_KEY: Open AI API key to a funded account (any amount of money is fine).
+* ELEVENLABS_API_KEY: Eleven Labs API key to an account with a Starter Plan minimum.
 
 ## File Structure
 ```

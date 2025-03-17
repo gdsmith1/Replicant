@@ -1,1 +1,1 @@
-This is where audio files for training go.
+# Audio files for the TTS training will be downloaded here.

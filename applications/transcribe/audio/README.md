@@ -1,1 +1,1 @@
-Audio files for the LLM training will be downloaded here.
+# Audio files for the transcribing process will be downloaded here.
