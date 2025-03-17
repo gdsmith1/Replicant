@@ -8,7 +8,7 @@ def download_files_from_s3(bucket_name, local_directory, downloaded_files):
     s3 = boto3.client('s3')
     paginator = s3.get_paginator('list_objects_v2')
     new_files = []
-    MAX_SIZE_BYTES = 9.9 * 1024 * 1024  # 9.9MB in bytes
+    MAX_SIZE_BYTES = 9.9 * 1024 * 1024  # 9.9MB in bytes (must be under 10MB for ElevenLabs)
 
     for page in paginator.paginate(Bucket=bucket_name):
         for obj in page.get('Contents', []):

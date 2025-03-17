@@ -42,7 +42,7 @@ def upload_file_to_s3(bucket_name, file_path, s3_key):
     s3.upload_file(file_path, bucket_name, s3_key)
     print(f"Uploaded {file_path} to s3://{bucket_name}/{s3_key}")
 
-def combine_audio_files(successful_files, output_path="combined_audio.wav"):
+def combine_audio_files(successful_files, output_path="combined_audio.wav"): # Not used by tts, but useful artifact for debugging
     if not successful_files:
         return None
 

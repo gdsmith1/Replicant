@@ -73,7 +73,6 @@ def create_fine_tuning_job(client, file_id, model, suffix):
     )
 
 if __name__ == "__main__":
-    # Load your API key from an environment variable or secret management service
     client = OpenAI()
 
     # Wait for the transcription file to be available
