@@ -35,6 +35,6 @@ services:
       - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
 
   clockwatch:
-    image: gdsmith1/clockwatch:latest
+    image: ghcr.io/gdsmith1/clockwatch:latest
     environment:
       - DISCORD_TOKEN=${DISCORD_BOT_TOKEN}
