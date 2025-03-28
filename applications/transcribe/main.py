@@ -127,7 +127,7 @@ if __name__ == "__main__":
         open("transcription.txt", "w").close()
 
     TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
-    end_time = time.time() + TIME_LIMIT + 120  # Add 2 minutes as a buffer for late uploads
+    end_time = time.time() + TIME_LIMIT + 60  # Add 1 minute as a buffer for late uploads
 
     downloaded_files = set()
 

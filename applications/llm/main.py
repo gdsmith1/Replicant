@@ -37,7 +37,7 @@ def process_transcription(file_path, inappropriate_words):
         if chunk == previous_chunk:
             continue
         previous_chunk = chunk
-        prompt = f"Assuming both users are gamers talking on Discord, what would one of them have said to get this response?  {chunk}  Give a likely quote in a simple, two-sentence max format that would cause this response, with no other feedback."
+        prompt = f"Assuming both users are users talking on Discord, what would one of them have said to get this response?  {chunk}  Assume that the users could be playing a competitive game like Rainbow Six Siege, Counter-Strike: Global Offensive, or War Thunder, watching YouTube videos, or just chatting with each other.  Give a likely quote in a simple, two-sentence max format that would cause this response, with no other feedback."
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
