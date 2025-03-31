@@ -7,24 +7,35 @@ from datetime import datetime
 def download_files_from_s3(bucket_name, local_directory, downloaded_files):
     s3 = boto3.client('s3')
     paginator = s3.get_paginator('list_objects_v2')
-    new_files = []
+    files_with_size = []
     MAX_SIZE_BYTES = 9.9 * 1024 * 1024  # 9.9MB in bytes (must be under 10MB for ElevenLabs)
+    MAX_FILES = 25  # Maximum number of files to upload
 
+    # Collect all eligible files with their sizes
     for page in paginator.paginate(Bucket=bucket_name):
         for obj in page.get('Contents', []):
             key = obj['Key']
-            size = obj['Size']  # Get file size in bytes
+            size = obj['Size']
 
             if key.endswith('.wav') and key not in downloaded_files:
                 if size > MAX_SIZE_BYTES:
                     print(f"Skipping {key}: File size {size/1024/1024:.2f}MB exceeds limit of 9.9MB")
                     continue
 
-                local_path = os.path.join(local_directory, os.path.basename(key))
-                s3.download_file(bucket_name, key, local_path)
-                print(f"Downloaded {key} ({size/1024/1024:.2f}MB) to {local_path}")
-                downloaded_files.add(key)
-                new_files.append(local_path)
+                files_with_size.append((key, size))
+
+    # Sort files by size in descending order and take top 25
+    files_with_size.sort(key=lambda x: x[1], reverse=True)
+    selected_files = files_with_size[:MAX_FILES]
+
+    new_files = []
+    # Download only the selected files
+    for key, size in selected_files:
+        local_path = os.path.join(local_directory, os.path.basename(key))
+        s3.download_file(bucket_name, key, local_path)
+        print(f"Downloaded {key} ({size/1024/1024:.2f}MB) to {local_path}")
+        downloaded_files.add(key)
+        new_files.append(local_path)
 
     return new_files
 
@@ -36,7 +47,7 @@ if __name__ == "__main__":
     # Wait for the transcription file to be available
     TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
     print("Waiting for audio files to be available...")
-    time.sleep(TIME_LIMIT + 120)  # Wait for the transcription to finish to start looking
+    # time.sleep(TIME_LIMIT + 120)  # Wait for the transcription to finish to start looking
 
     # Create audio directory if it doesn't exist
     if not os.path.exists('audio'):
@@ -50,7 +61,7 @@ if __name__ == "__main__":
     file_objects = [open(file_path, 'rb') for file_path in audio_files]
 
     # Print the files we're going to upload
-    print("Attempting to upload these files:", audio_files)
+    print(f"Attempting to upload {len(audio_files)} files:", audio_files)
     customsuffix = datetime.now().strftime("%Y%m%d%H%M%S")
     try:
         result = client.voices.add(
