@@ -47,7 +47,7 @@ if __name__ == "__main__":
     # Wait for the transcription file to be available
     TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
     print("Waiting for audio files to be available...")
-    # time.sleep(TIME_LIMIT + 120)  # Wait for the transcription to finish to start looking
+    time.sleep(TIME_LIMIT + 120)  # Wait for the transcription to finish to start looking
 
     # Create audio directory if it doesn't exist
     if not os.path.exists('audio'):
