@@ -1,5 +1,6 @@
 annotated-types==0.7.0
 anyio==4.8.0
+attrs==25.3.0
 boto3==1.37.13
 botocore==1.37.13
 certifi==2025.1.31
@@ -10,6 +11,7 @@ httpcore==1.0.7
 httpx==0.28.1
 idna==3.10
 jmespath==1.0.1
+jsonlines==4.0.0
 pydantic==2.10.6
 pydantic_core==2.27.2
 python-dateutil==2.9.0.post0

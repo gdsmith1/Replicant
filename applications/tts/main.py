@@ -1,8 +1,15 @@
 import boto3
 import os
 import time
+import json
+import shutil
 from elevenlabs.client import ElevenLabs
 from datetime import datetime
+
+def upload_file_to_s3(bucket_name, file_path, s3_key):
+    s3 = boto3.client('s3')
+    s3.upload_file(file_path, bucket_name, s3_key)
+    print(f"Uploaded {file_path} to s3://{bucket_name}/{s3_key}")
 
 def download_files_from_s3(bucket_name, local_directory, downloaded_files):
     s3 = boto3.client('s3')
@@ -39,6 +46,18 @@ def download_files_from_s3(bucket_name, local_directory, downloaded_files):
 
     return new_files
 
+def rename_files_sequentially(file_paths, directory):
+    """Rename files to sequential numbers with unix timestamp and return new paths."""
+    new_paths = []
+    timestamp = int(time.time())
+    for i, old_path in enumerate(file_paths, 1):
+        new_filename = f"{timestamp}_{i}.wav"
+        new_path = os.path.join(directory, new_filename)
+        shutil.move(old_path, new_path)
+        print(f"Renamed {old_path} to {new_path}")
+        new_paths.append(new_path)
+    return new_paths
+
 if __name__ == "__main__":
     client = ElevenLabs(
       api_key=os.getenv('ELEVENLABS_API_KEY'),
@@ -71,6 +90,12 @@ if __name__ == "__main__":
             description="Recorded autonomously via Replicant"
         )
         print(result)
+        # Save voice_id to file
+        with open('tts-id.txt', 'w') as f:
+            f.write(result['voice_id'])
+
+        # Upload the file to S3
+        upload_file_to_s3('replicant-s3-bucket', 'tts-id.txt', 'tts-id.txt')
     finally:
         # Make sure to close all file objects
         for file_obj in file_objects:
