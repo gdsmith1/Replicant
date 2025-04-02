@@ -20,6 +20,10 @@ start:
 	@echo "Running docker-compose up on EC2 instance..."
 	ssh -i infra/runner-ec2/generated-key.pem ubuntu@$$(cat ./infra/runner-ec2/runner-ip.txt) 'cd /home/ubuntu && sudo docker compose up -d'
 
+status:
+	@echo "Checking status of docker-compose on EC2 instance..."
+	ssh -i infra/runner-ec2/generated-key.pem ubuntu@$$(cat ./infra/runner-ec2/runner-ip.txt) 'cd /home/ubuntu && sudo docker compose ps'
+
 stop:
 	@echo "Stopping docker-compose on EC2 instance..."
 	ssh -i infra/runner-ec2/generated-key.pem ubuntu@$$(cat ./infra/runner-ec2/runner-ip.txt) 'cd /home/ubuntu && sudo docker compose down'

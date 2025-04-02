@@ -3,10 +3,23 @@
 [![Build and Publish Docker Images](https://github.com/gdsmith1/Replicant/actions/workflows/docker.yaml/badge.svg)](https://github.com/gdsmith1/Replicant/actions/workflows/docker.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## Clone your friends with AI!
+Replicant is a collection of modular Docker containers that allows you to collect voice samples from a desired user, and use them to generate fine-tuned Text-to-Speech and Language Models from them, completely autonomously.
+
+## Getting Started
+To use Replicant, you will need to have the all of the required tools and set up your environment file in the Requirements section.
+
+To run the default configuration, simply run `make` in the root of the project.  You can also use `make status` to see the status of the containers, `make stop` to stop the containers, or `make clean` to stop everything and take down the infrastructure.
+
+You can run Replicant locally by running the docker compose file in the root of the project with `docker compose up`.
+
+Because of its modular design, you can also add or remove any docker containers from the compose file to customize your setup.  For example, you may want to run the collector bot multiple times to get much more data, but you only want to run the AI training containers once.  You can simply comment the unnecessary containers out, and add them back when you're ready.  You can also add other containers, such as [clockwatch](https://github.com/gdsmith1/clockwatch), which is used to make Replicant seem less suspicious to an unsuspecting user.
+
+
 ## Requirements
 
-### Local Tooling
-To run a Replicant session, you will need all of the following tools installed: (Makefile coming soonTM)
+### Tooling for Remote Hosting
+To run a remotely hosted Replicant session, you will need all of the following tools installed:
 * AWS CLI
 * Terraform
 * Terragrunt

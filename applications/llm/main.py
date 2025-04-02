@@ -72,6 +72,22 @@ def create_fine_tuning_job(client, file_id, model, suffix):
         suffix=suffix
     )
 
+def check_fine_tuning_status(client, job_id):
+    while True:
+        response = client.fine_tuning.jobs.retrieve(job_id)
+        status = response.status
+
+        print(f"Fine-tuning status: {status}")
+
+        if status == "succeeded":
+            print(f"Fine-tuning completed successfully! Model ID: {response.fine_tuned_model}")
+            return response.fine_tuned_model
+        elif status in ["failed", "cancelled"]:
+            raise Exception(f"Fine-tuning failed with status: {status}")
+
+        # Wait 120 seconds before checking again
+        time.sleep(120)
+
 if __name__ == "__main__":
     client = OpenAI()
 
@@ -99,6 +115,17 @@ if __name__ == "__main__":
     customsuffix = datetime.now().strftime("%Y%m%d%H%M%S")
     modelresponse = create_fine_tuning_job(client, fileresponse.id, "gpt-3.5-turbo", customsuffix)
     print("Fine-tuned model created:", modelresponse)
+
+    try:
+        fine_tuned_model = check_fine_tuning_status(client, modelresponse.id)
+        print(f"Fine-tuning completed. Model ID: {fine_tuned_model}")
+        # Save the model ID to a file
+        with open('llm-id.txt', 'w') as f:
+            f.write(fine_tuned_model)
+        # Upload the model ID file to S3
+        upload_file_to_s3('replicant-s3-bucket', 'llm-id.txt', 'llm-id.txt')
+    except Exception as e:
+        print(f"Fine-tuning failed: {e}")
 
     # Upload the fine-tuning dataset to S3
     dataset_s3_key = f'fine_tune_dataset_{customsuffix}.jsonl'

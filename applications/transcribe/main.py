@@ -28,7 +28,7 @@ def download_files_from_s3(bucket_name, local_directory, downloaded_files):
     for page in paginator.paginate(Bucket=bucket_name):
         for obj in page.get('Contents', []):
             key = obj['Key']
-            if key.endswith('.wav') and key not in downloaded_files:
+            if key.endswith('.wav')  and key != 'combined_audio.wav' and  key not in downloaded_files:
                 local_path = os.path.join(local_directory, os.path.basename(key))
                 s3.download_file(bucket_name, key, local_path)
                 print(f"Downloaded {key} to {local_path}")
