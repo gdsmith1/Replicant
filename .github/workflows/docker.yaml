@@ -9,6 +9,7 @@ on:
       - "applications/llm/**"
       - "applications/transcribe/**"
       - "applications/tts/**"
+      - "applications/replicant-bot/**"
 
 permissions:
   contents: read
@@ -20,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: [collector-bot, llm, transcribe, tts]
+        app: [collector-bot, llm, transcribe, tts, replicant-bot]
 
     steps:
       - name: Checkout repository

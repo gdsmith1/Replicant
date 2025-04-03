@@ -7,7 +7,7 @@
 Replicant is a collection of modular Docker containers that allows you to collect voice samples from a desired user, and use them to generate fine-tuned Text-to-Speech and Language Models from them, completely autonomously.
 
 ## Getting Started
-To use Replicant, you will need to have the all of the required tools and set up your environment file in the Requirements section.
+To use Replicant, you will need to have the all of the required tools and set up your environment file in the Requirements section.  You can also find several ways to customize your Replicant setup in the environment file.
 
 To run the default configuration, simply run `make` in the root of the project.  You can also use `make status` to see the status of the containers, `make stop` to stop the containers, or `make clean` to stop everything and take down the infrastructure.
 
@@ -27,7 +27,7 @@ To run a remotely hosted Replicant session, you will need all of the following t
 ### API Resources
 [__AWS Access Keys__](https://us-east-1.console.aws.amazon.com/console/home): create the keys in AWS and use `aws configure` to enter them to be able to use them with terragrunt.  For continuity's sake, all infra is written for _us-east-1_.
 
-[__Discord Bot__](https://discord.com/developers/applications): create a discord bot from the developer portal and add it to your discord server.  I used administrator permissions to develop, but this is not a recommended approach for security.
+[__Discord Bot__](https://discord.com/developers/applications): create a discord bot from the developer portal and add it to your discord server.  I used administrator permissions to develop, but this is not a recommended approach for security.  If you would like to use a second bot for the final app, you can make a separate bot with similar permissions and configure it in the `.env` file.
 
 [__Discord Server__](https://discord.com): Ensure that the users in your server will not disconnect the bot while it is running!
 
@@ -37,15 +37,16 @@ To run a remotely hosted Replicant session, you will need all of the following t
 
 ### Environment
 Create a `.env` file with the following contents:
-* DISCORD_BOT_TOKEN: A discord bot token with administrator access (can be more fine-grained, but I haven't tested the minimum requirements)
+* DISCORD_BOT_TOKEN: A discord bot token with administrator access (can be more fine-grained, but I haven't tested the minimum requirements) for the collector bot to run.
 * VOICE_CHANNEL_ID: The discord voice channel you wish to observe
 * TARGET_USER_ID: The discord user you wish to observe
 * TIME_LIMIT: The amount of time (in seconds) you want the collector bot to run.  More time means more voicelines recorded, and a more detailed model generated.  Defaults to 10 minutes.  (For dev purposes, I usually run for only about 2 minutes.  For a full session, I run it for a full day, to try and cover the target user's full time online.)
-* SPEAKING_LIMIT: The amount of time (in seconds) each 'sentence' will be recorded for.  This is dependent on how the actual user tends to speak, and took some rough estimation to get a decent value.  Defaults to 5 seconds.  (I found the best results are usually between 7.5 and 10 seconds)
+* SPEAKING_LIMIT: The amount of time (in seconds) each 'sentence' will be recorded for.  This is dependent on how the actual user tends to speak, and took some rough estimation to get a decent value.  Defaults to 5 seconds.  (I found the best results for my case are usually between 7.5 and 10 seconds)
 * AWS_ACCESS_KEY_ID: Access key ID for your AWS account (Likely needs to have a card attached.)
 * AWS_SECRET_ACCESS_KEY: Secret access key for your AWS account
 * OPENAI_API_KEY: Open AI API key to a funded account (any amount of money is fine).
 * ELEVENLABS_API_KEY: Eleven Labs API key to an account with a Starter Plan minimum.
+* REPLICANT_BOT_TOKEN: The bot token for the replicant bot.  If you would like, you can use the same token as the collector bot.  Needs permissions to send messages, files, and join and speak in voice channels.
 
 ## File Structure
 ```

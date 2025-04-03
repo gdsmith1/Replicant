@@ -99,7 +99,7 @@ if __name__ == "__main__":
     # Download the transcription file
     while not os.path.exists('transcription.txt'):
         try:
-            download_file_from_s3('replicant-s3-bucket', 'transcription.txt', 'transcription.txt')
+            download_file_from_s3('replicanttestbucket', 'transcription.txt', 'transcription.txt')
         except Exception as e:
             print(f"Error downloading file: {e}. Retrying in 10 seconds...")
             time.sleep(10)

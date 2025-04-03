@@ -34,8 +34,8 @@ download:
 
 clean:
 	@echo "Stopping docker-compose on EC2 instance..."
-	ssh -i infra/runner-ec2/generated-key.pem ubuntu@$$(cat ./infra/runner-ec2/runner-ip.txt) 'cd /home/ubuntu && sudo docker compose down'
+	ssh -i infra/runner-ec2/generated-key.pem ubuntu@$$(cat ./infra/runner-ec2/runner-ip.txt) 'cd /home/ubuntu && sudo docker compose down' || true
 	@echo "Removing EC2 instance from known_hosts..."
-	ssh-keygen -R "$$(cat ./infra/runner-ec2/runner-ip.txt)"
+	ssh-keygen -R "$$(cat ./infra/runner-ec2/runner-ip.txt)" || true
 	@echo "Destroying infrastructure..."
 	terragrunt run-all destroy --non-interactive

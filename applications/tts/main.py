@@ -16,6 +16,7 @@ def download_files_from_s3(bucket_name, local_directory, downloaded_files):
     paginator = s3.get_paginator('list_objects_v2')
     files_with_size = []
     MAX_SIZE_BYTES = 9.9 * 1024 * 1024  # 9.9MB in bytes (must be under 10MB for ElevenLabs)
+    MIN_SIZE_BYTES = 800 * 1024  # Approximately 4.6 seconds of audio (800KB)
     MAX_FILES = 25  # Maximum number of files to upload
 
     # Collect all eligible files with their sizes
@@ -28,12 +29,18 @@ def download_files_from_s3(bucket_name, local_directory, downloaded_files):
                 if size > MAX_SIZE_BYTES:
                     print(f"Skipping {key}: File size {size/1024/1024:.2f}MB exceeds limit of 9.9MB")
                     continue
+                if size < MIN_SIZE_BYTES:
+                    print(f"Skipping {key}: File size {size/1024:.2f}KB is below minimum of 800KB (4.6 seconds)")
+                    continue
 
                 files_with_size.append((key, size))
 
     # Sort files by size in descending order and take top 25
     files_with_size.sort(key=lambda x: x[1], reverse=True)
     selected_files = files_with_size[:MAX_FILES]
+
+    if not selected_files:
+        raise Exception("No suitable audio files found (must be between 800KB and 9.9MB)")
 
     new_files = []
     # Download only the selected files
@@ -84,7 +91,7 @@ if __name__ == "__main__":
     customsuffix = datetime.now().strftime("%Y%m%d%H%M%S")
     try:
         result = client.voices.add(
-            name=f"replicant-{customsuffix}",
+        name=f"replicant-{customsuffix}",
             files=file_objects,  # Pass the list of file objects
             remove_background_noise=True,
             description="Recorded autonomously via Replicant"
@@ -92,7 +99,7 @@ if __name__ == "__main__":
         print(result)
         # Save voice_id to file
         with open('tts-id.txt', 'w') as f:
-            f.write(result['voice_id'])
+            f.write(result.voice_id)  # Changed from result['voice_id'] to result.voice_id
 
         # Upload the file to S3
         upload_file_to_s3('replicant-s3-bucket', 'tts-id.txt', 'tts-id.txt')
