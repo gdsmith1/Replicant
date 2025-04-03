@@ -69,6 +69,10 @@ Create a `.env` file with the following contents:
 │   │   ├── Dockerfile
 │   │   ├── main.py
 │   │   └── requirements.md
+│   ├── replicant-bot
+│   │   ├── Dockerfile
+│   │   ├── main.py
+│   │   └── requirements.md
 │   ├── transcribe
 │   │   ├── Dockerfile
 │   │   ├── audio
@@ -93,5 +97,5 @@ Create a `.env` file with the following contents:
 │       └── variables.tf
 └── root.hcl
 
-14 directories, 28 files
+15 directories, 31 files
 ```
