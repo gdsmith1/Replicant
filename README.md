@@ -60,6 +60,7 @@ Create a `.env` file with the following contents:
 ## File Structure
 ```
 .
+├── .env
 ├── .github
 │   └── workflows
 │       ├── docker.yaml
@@ -107,5 +108,5 @@ Create a `.env` file with the following contents:
 │       └── variables.tf
 └── root.hcl
 
-15 directories, 32 files
+15 directories, 33 files
 ```
