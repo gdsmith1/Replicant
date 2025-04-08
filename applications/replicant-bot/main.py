@@ -52,13 +52,13 @@ def download_file_from_s3(bucket_name, s3_key, local_path):
 # Load model and voice IDs from S3
 while not os.path.exists('tts.txt'):
     try:
-        download_file_from_s3('replicanttestbucket', 'tts.txt', 'tts.txt')
+        download_file_from_s3('replicant-s3-bucket', 'tts.txt', 'tts.txt')
     except Exception as e:
         print(f"Error downloading file: {e}. Retrying in 10 seconds...")
         time.sleep(10)
 while not os.path.exists('llm-id.txt'):
     try:
-        download_file_from_s3('replicanttestbucket', 'llm-id.txt', 'llm-id.txt')
+        download_file_from_s3('replicant-s3-bucket', 'llm-id.txt', 'llm-id.txt')
     except Exception as e:
         print(f"Error downloading file: {e}. Retrying in 10 seconds...")
         time.sleep(10)
