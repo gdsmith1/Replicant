@@ -5,6 +5,8 @@ import json
 import shutil
 from elevenlabs.client import ElevenLabs
 from datetime import datetime
+from pydub import AudioSegment
+
 
 def upload_file_to_s3(bucket_name, file_path, s3_key):
     s3 = boto3.client('s3')
@@ -14,42 +16,69 @@ def upload_file_to_s3(bucket_name, file_path, s3_key):
 def download_files_from_s3(bucket_name, local_directory, downloaded_files):
     s3 = boto3.client('s3')
     paginator = s3.get_paginator('list_objects_v2')
-    files_with_size = []
-    MAX_SIZE_BYTES = 9.9 * 1024 * 1024  # 9.9MB in bytes (must be under 10MB for ElevenLabs)
-    MIN_SIZE_BYTES = 800 * 1024  # Approximately 4.6 seconds of audio (800KB)
-    MAX_FILES = 25  # Maximum number of files to upload
+    files_with_duration = []
+    MAX_DURATION_SEC = 30  # Maximum duration in seconds
+    MIN_DURATION_SEC = 4.6   # Minimum duration in seconds
+    MAX_FILES = 25         # Maximum number of files to upload
 
-    # Collect all eligible files with their sizes
+    # First download eligible wav files to check their duration
+    temp_dir = os.path.join(local_directory, 'temp')
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
+
+    # Collect all potential wav files
+    wav_files = []
     for page in paginator.paginate(Bucket=bucket_name):
         for obj in page.get('Contents', []):
             key = obj['Key']
-            size = obj['Size']
-
             if key.endswith('.wav') and key not in downloaded_files:
-                if size > MAX_SIZE_BYTES:
-                    print(f"Skipping {key}: File size {size/1024/1024:.2f}MB exceeds limit of 9.9MB")
-                    continue
-                if size < MIN_SIZE_BYTES:
-                    print(f"Skipping {key}: File size {size/1024:.2f}KB is below minimum of 800KB (4.6 seconds)")
-                    continue
+                wav_files.append(key)
 
-                files_with_size.append((key, size))
+    # Download and check durations
+    for key in wav_files:
+        temp_path = os.path.join(temp_dir, os.path.basename(key))
+        try:
+            s3.download_file(bucket_name, key, temp_path)
+            # Check actual duration using pydub
+            audio = AudioSegment.from_wav(temp_path)
+            duration_sec = len(audio) / 1000  # Convert milliseconds to seconds
 
-    # Sort files by size in descending order and take top 25
-    files_with_size.sort(key=lambda x: x[1], reverse=True)
-    selected_files = files_with_size[:MAX_FILES]
+            if duration_sec > MAX_DURATION_SEC:
+                print(f"Skipping {key}: Duration {duration_sec:.2f}s exceeds limit of {MAX_DURATION_SEC}s")
+                os.remove(temp_path)  # Clean up temp file
+                continue
+            if duration_sec < MIN_DURATION_SEC:
+                print(f"Skipping {key}: Duration {duration_sec:.2f}s is below minimum of {MIN_DURATION_SEC}s")
+                os.remove(temp_path)  # Clean up temp file
+                continue
+
+            files_with_duration.append((key, temp_path, duration_sec))
+            print(f"Found valid file {key} with duration {duration_sec:.2f}s")
+
+        except Exception as e:
+            print(f"Error processing {key}: {e}")
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
+    # Sort files by duration in descending order and take top MAX_FILES
+    files_with_duration.sort(key=lambda x: x[2], reverse=True)
+    selected_files = files_with_duration[:MAX_FILES]
 
     if not selected_files:
-        raise Exception("No suitable audio files found (must be between 800KB and 9.9MB)")
+        raise Exception(f"No suitable audio files found (must be between {MIN_DURATION_SEC} and {MAX_DURATION_SEC} seconds)")
 
     new_files = []
-    # Download only the selected files
-    for key, size in selected_files:
-        local_path = os.path.join(local_directory, os.path.basename(key))
-        s3.download_file(bucket_name, key, local_path)
-        print(f"Downloaded {key} ({size/1024/1024:.2f}MB) to {local_path}")
+    # Move selected files to final location
+    for key, temp_path, duration in selected_files:
+        final_path = os.path.join(local_directory, os.path.basename(key))
+        shutil.move(temp_path, final_path)
+        print(f"Selected {key} ({duration:.2f}s) -> {final_path}")
         downloaded_files.add(key)
-        new_files.append(local_path)
+        new_files.append(final_path)
+
+    # Clean up temp directory
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
 
     return new_files
 
