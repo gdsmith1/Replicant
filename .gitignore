@@ -9,6 +9,7 @@ venv/
 *.wav
 *.txt
 *.jsonl
+*.zip
 
 # Terragrunt/Terraform
 .terragrunt-cache/
@@ -18,3 +19,6 @@ terraform.tfstate.backup
 .terraform.lock.hcl
 backend.tf
 *.pem
+
+# Apple files
+.DS_Store

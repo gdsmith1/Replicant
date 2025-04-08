@@ -30,7 +30,9 @@ stop:
 
 download:
 	@echo "Downloading logs from EC2 instance..."
-	@echo "TODO - Download all contents of artifact s3 bucket"
+	@chmod +x ./download.sh
+	./download.sh replicant-s3-bucket
+	@echo "Download complete. Contents are in bucket_contents.zip"
 
 clean:
 	@echo "Stopping docker-compose on EC2 instance..."
