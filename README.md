@@ -23,6 +23,13 @@ To run a remotely hosted Replicant session, you will need all of the following t
 * AWS CLI
 * Terraform
 * Terragrunt
+* Make
+
+### Tooling for Local Hosting
+The following additional tools are required to run Replicant locally:
+* Docker
+* Docker Compose
+Currently, Replicant depends on the existance of the S3 artifact storage bucket, so it must be built for any of these programs to run properly.
 
 ### API Resources
 [__AWS Access Keys__](https://us-east-1.console.aws.amazon.com/console/home): create the keys in AWS and use `aws configure` to enter them to be able to use them with terragrunt.  For continuity's sake, all infra is written for _us-east-1_.
