@@ -54,6 +54,8 @@ Create a `.env` file with the following contents:
 * OPENAI_API_KEY: Open AI API key to a funded account (any amount of money is fine).
 * ELEVENLABS_API_KEY: Eleven Labs API key to an account with a Starter Plan minimum.
 * REPLICANT_BOT_TOKEN: The bot token for the replicant bot.  If you would like, you can use the same token as the collector bot.  Needs permissions to send messages, files, and join and speak in voice channels.
+* CENSOR_LLM_TRAINING: Will censor the LLM training data to remove any potentially offensive content. Defaults to true.
+* LLM_TRAINING_PROMPT: The prompt to use for the LLM training data. This is where you can specify any specifics or assumptions about the user you are training off of, such as what they are doing, how they may react to certain situations, or what their background is.
 
 ## File Structure
 ```

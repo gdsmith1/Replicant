@@ -24,7 +24,7 @@ def fetch_inappropriate_words(url):
     response = requests.get(url)
     return response.text.splitlines()
 
-def process_transcription(file_path, inappropriate_words, should_censor=True):
+def process_transcription(file_path, inappropriate_words, custom_prompt, should_censor=True):
     with open(file_path, "r") as file:
         transcription = file.read()
 
@@ -57,7 +57,13 @@ def process_transcription(file_path, inappropriate_words, should_censor=True):
             continue
         previous_chunk = chunk
 
-        prompt = f"Assuming both users are users talking on Discord, what would one of them have said to get this response? {chunk} Assume that the users could be playing a competitive game like Rainbow Six Siege, Counter-Strike: Global Offensive, or War Thunder, watching YouTube videos, or just chatting with each other and playing Minecraft. Give a likely quote in a simple, two-sentence max format that would cause this response, with no other feedback."
+        # Construct the prompt with fixed parts and the custom prompt from environment variable
+        prompt = (
+            f"Assuming both users are users talking on Discord, what would one of them have said to get this response? "
+            f"'{chunk}' "  # This is where the processed transcription line goes
+            f"{custom_prompt} "  # This is where the user's custom prompt from the env file goes
+            f"Give a likely quote in a simple, two-sentence max format that would cause this response, with no other feedback."
+        )
 
         response = client.chat.completions.create(
             model="gpt-4o",
@@ -121,6 +127,10 @@ if __name__ == "__main__":
     should_censor = os.getenv('CENSOR_LLM_TRAINING', 'true').lower() == 'true'
     print(f"Censoring {'enabled' if should_censor else 'disabled'} based on CENSOR_LLM_TRAINING environment variable")
 
+    # Get the prompt template from environment variable or use default if not provided
+    default_prompt = "Assume that the users could be playing a competitive game like Rainbow Six Siege, Counter-Strike: Global Offensive, or War Thunder, watching YouTube videos, or just chatting with each other and playing Minecraft."
+    prompt_template = os.getenv('LLM_TRAINING_PROMPT', default_prompt)
+
     # Download the transcription file
     while not os.path.exists('transcription.txt'):
         try:
@@ -135,7 +145,7 @@ if __name__ == "__main__":
         inappropriate_words = fetch_inappropriate_words("https://raw.githubusercontent.com/Hesham-Elbadawi/list-of-banned-words/refs/heads/master/en")
         print(f"Loaded {len(inappropriate_words)} inappropriate words for censoring")
 
-    process_transcription("transcription.txt", inappropriate_words, should_censor)
+    process_transcription("transcription.txt", inappropriate_words, prompt_template, should_censor)
 
     # Upload the dataset to OpenAI
     fileresponse = upload_dataset(client, "fine_tune_dataset.jsonl")
