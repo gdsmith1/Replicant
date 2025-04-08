@@ -29,6 +29,7 @@ To run a remotely hosted Replicant session, you will need all of the following t
 The following additional tools are required to run Replicant locally:
 * Docker
 * Docker Compose
+
 Currently, Replicant depends on the existance of the S3 artifact storage bucket, so it must be built for any of these programs to run properly.
 
 ### API Resources
@@ -44,18 +45,19 @@ Currently, Replicant depends on the existance of the S3 artifact storage bucket,
 
 ### Environment
 Create a `.env` file with the following contents:
-* DISCORD_BOT_TOKEN: A discord bot token with administrator access (can be more fine-grained, but I haven't tested the minimum requirements) for the collector bot to run.
-* VOICE_CHANNEL_ID: The discord voice channel you wish to observe
-* TARGET_USER_ID: The discord user you wish to observe
-* TIME_LIMIT: The amount of time (in seconds) you want the collector bot to run.  More time means more voicelines recorded, and a more detailed model generated.  Defaults to 10 minutes.  (For dev purposes, I usually run for only about 2 minutes.  For a full session, I run it for a full day, to try and cover the target user's full time online.)
-* SPEAKING_LIMIT: The amount of time (in seconds) each 'sentence' will be recorded for.  This is dependent on how the actual user tends to speak, and took some rough estimation to get a decent value.  Defaults to 5 seconds.  (I found the best results for my case are usually between 7.5 and 10 seconds)
-* AWS_ACCESS_KEY_ID: Access key ID for your AWS account (Likely needs to have a card attached.)
-* AWS_SECRET_ACCESS_KEY: Secret access key for your AWS account
-* OPENAI_API_KEY: Open AI API key to a funded account (any amount of money is fine).
-* ELEVENLABS_API_KEY: Eleven Labs API key to an account with a Starter Plan minimum.
-* REPLICANT_BOT_TOKEN: The bot token for the replicant bot.  If you would like, you can use the same token as the collector bot.  Needs permissions to send messages, files, and join and speak in voice channels.
-* CENSOR_LLM_TRAINING: Will censor the LLM training data to remove any potentially offensive content. Defaults to true.
-* LLM_TRAINING_PROMPT: The prompt to use for the LLM training data. This is where you can specify any specifics or assumptions about the user you are training off of, such as what they are doing, how they may react to certain situations, or what their background is.
+* __DISCORD_BOT_TOKEN__: A discord bot token with administrator access (can be more fine-grained, but I haven't tested the minimum requirements) for the collector bot to run.
+* __VOICE_CHANNEL_ID__: The discord voice channel you wish to observe
+* __TARGET_USER_ID__: The discord user you wish to observe
+* __TIME_LIMIT__: The amount of time (in seconds) you want the collector bot to run.  More time means more voicelines recorded, and a more detailed model generated.  Defaults to 10 minutes.  (For dev purposes, I usually run for only about 2 minutes.  For a full session, I run it for a full day, to try and cover the target user's full time online.)
+* __SPEAKING_LIMIT__: The amount of time (in seconds) each 'sentence' will be recorded for.  This is dependent on how the actual user tends to speak, and took some rough estimation to get a decent value.  Defaults to 5 seconds.  (I found the best results for my case are usually between 7.5 and 10 seconds)
+* __AWS_ACCESS_KEY_ID__: Access key ID for your AWS account (Likely needs to have a card attached.)
+* __AWS_SECRET_ACCESS_KEY__: Secret access key for your AWS account
+* __OPENAI_API_KEY__: Open AI API key to a funded account (any amount of money is fine).
+* __ELEVENLABS_API_KEY__: Eleven Labs API key to an account with a Starter Plan minimum.
+* __REPLICANT_BOT_TOKEN__: The bot token for the replicant bot.  If you would like, you can use the same token as the collector bot.  Needs permissions to send messages, files, and join and speak in voice channels.
+* __CENSOR_LLM_TRAINING__: Will censor the LLM training data to remove any potentially offensive content. Defaults to true.
+* __LLM_TRAINING_PROMPT__: The prompt to use for the LLM training data. This is where you can specify any specifics or assumptions about the user you are training off of, such as what they are doing, how they may react to certain situations, or what their background is.
+There is already a file in the repo to help you get started!
 
 ## File Structure
 ```
