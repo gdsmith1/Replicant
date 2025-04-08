@@ -24,20 +24,41 @@ def fetch_inappropriate_words(url):
     response = requests.get(url)
     return response.text.splitlines()
 
-def process_transcription(file_path, inappropriate_words):
+def process_transcription(file_path, inappropriate_words, should_censor=True):
     with open(file_path, "r") as file:
         transcription = file.read()
 
+    # Split the transcription into chunks by newline
     chunks = transcription.split('\n')
-    censored_chunks = [re.sub(r'\b{}\b'.format(word), "[CENSORED]", chunk, flags=re.IGNORECASE) for chunk in chunks for word in inappropriate_words]
 
+    # Filter out empty chunks and censor inappropriate words in each chunk if needed
+    processed_chunks = []
+    for chunk in chunks:
+        if not chunk.strip():  # Skip empty lines
+            continue
+
+        processed_chunk = chunk
+        if should_censor:
+            # Apply censoring to this chunk
+            for word in inappropriate_words:
+                processed_chunk = re.sub(r'\b{}\b'.format(re.escape(word)), "[CENSORED]", processed_chunk, flags=re.IGNORECASE)
+
+            print(f"Censoring enabled: Original: '{chunk}' → Censored: '{processed_chunk}'")
+        else:
+            print(f"Censoring disabled: Using original text: '{processed_chunk}'")
+
+        processed_chunks.append(processed_chunk)
+
+    # Create dataset using the processed chunks
     dataset = []
     previous_chunk = None
-    for chunk in censored_chunks:
-        if chunk == previous_chunk:
+    for chunk in processed_chunks:
+        if chunk == previous_chunk or not chunk.strip():
             continue
         previous_chunk = chunk
-        prompt = f"Assuming both users are users talking on Discord, what would one of them have said to get this response?  {chunk}  Assume that the users could be playing a competitive game like Rainbow Six Siege, Counter-Strike: Global Offensive, or War Thunder, watching YouTube videos, or just chatting with each other.  Give a likely quote in a simple, two-sentence max format that would cause this response, with no other feedback."
+
+        prompt = f"Assuming both users are users talking on Discord, what would one of them have said to get this response? {chunk} Assume that the users could be playing a competitive game like Rainbow Six Siege, Counter-Strike: Global Offensive, or War Thunder, watching YouTube videos, or just chatting with each other and playing Minecraft. Give a likely quote in a simple, two-sentence max format that would cause this response, with no other feedback."
+
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -96,6 +117,10 @@ if __name__ == "__main__":
     print("Waiting for transcription file to be available...")
     time.sleep(TIME_LIMIT + 120)  # Wait for the transcription to finish to start looking
 
+    # Check if censoring should be applied
+    should_censor = os.getenv('CENSOR_LLM_TRAINING', 'true').lower() == 'true'
+    print(f"Censoring {'enabled' if should_censor else 'disabled'} based on CENSOR_LLM_TRAINING environment variable")
+
     # Download the transcription file
     while not os.path.exists('transcription.txt'):
         try:
@@ -105,8 +130,12 @@ if __name__ == "__main__":
             time.sleep(10)
 
     # Process the transcription
-    inappropriate_words = fetch_inappropriate_words("https://raw.githubusercontent.com/Hesham-Elbadawi/list-of-banned-words/refs/heads/master/en")
-    process_transcription("transcription.txt", inappropriate_words)
+    inappropriate_words = []
+    if should_censor:
+        inappropriate_words = fetch_inappropriate_words("https://raw.githubusercontent.com/Hesham-Elbadawi/list-of-banned-words/refs/heads/master/en")
+        print(f"Loaded {len(inappropriate_words)} inappropriate words for censoring")
+
+    process_transcription("transcription.txt", inappropriate_words, should_censor)
 
     # Upload the dataset to OpenAI
     fileresponse = upload_dataset(client, "fine_tune_dataset.jsonl")
