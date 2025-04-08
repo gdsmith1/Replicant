@@ -84,6 +84,7 @@ Create a `.env` file with the following contents:
 │       ├── main.py
 │       └── requirements.md
 ├── docker-compose.yaml
+├── download.sh
 ├── infra
 │   ├── artifact-s3
 │   │   ├── main.tf
@@ -97,5 +98,5 @@ Create a `.env` file with the following contents:
 │       └── variables.tf
 └── root.hcl
 
-15 directories, 31 files
+15 directories, 32 files
 ```
