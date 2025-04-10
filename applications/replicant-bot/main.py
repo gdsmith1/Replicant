@@ -13,12 +13,6 @@ TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
 print("Waiting for tts/llm file to be available...")
 time.sleep(TIME_LIMIT + 120)
 
-# Verify environment variables
-required_env_vars = ['OPENAI_API_KEY', 'ELEVENLABS_API_KEY', 'DISCORD_BOT_TOKEN']
-for var in required_env_vars:
-    if not os.getenv(var):
-        raise ValueError(f"Missing required environment variable: {var}")
-
 # Setup
 intents = discord.Intents.default()
 intents.message_content = True
@@ -45,27 +39,33 @@ def generate_audio(text):
     return audio_bytes
 
 def download_file_from_s3(bucket_name, s3_key, local_path):
+    """Download a file from S3 bucket"""
     s3 = boto3.client('s3')
     s3.download_file(bucket_name, s3_key, local_path)
     print(f"Downloaded {s3_key} to {local_path}")
 
 # Load model and voice IDs from S3
-while not os.path.exists('tts.txt'):
-    try:
-        download_file_from_s3('replicant-s3-bucket', 'tts.txt', 'tts.txt')
-    except Exception as e:
-        print(f"Error downloading file: {e}. Retrying in 10 seconds...")
-        time.sleep(10)
-while not os.path.exists('llm-id.txt'):
-    try:
-        download_file_from_s3('replicant-s3-bucket', 'llm-id.txt', 'llm-id.txt')
-    except Exception as e:
-        print(f"Error downloading file: {e}. Retrying in 10 seconds...")
-        time.sleep(10)
 try:
-    download_file_from_s3('replicant-s3-bucket', 'llm-id.txt', 'llm-id.txt')
-    download_file_from_s3('replicant-s3-bucket', 'tts-id.txt', 'tts-id.txt')
+    # Download files from S3
+    bucket_name = 'replicant-s3-bucket'
+    for file_info in [('llm-id.txt', 'llm-id.txt'), ('tts-id.txt', 'tts-id.txt')]:
+        s3_key, local_path = file_info
+        retry_count = 0
+        max_retries = 5
 
+        while retry_count < max_retries:
+            try:
+                download_file_from_s3(bucket_name, s3_key, local_path)
+                break
+            except Exception as e:
+                retry_count += 1
+                print(f"Error downloading {s3_key}: {e}. Retry {retry_count}/{max_retries}...")
+                asyncio.sleep(10)
+
+        if retry_count == max_retries:
+            raise Exception(f"Failed to download {s3_key} after {max_retries} attempts")
+
+    # Read the model and voice IDs
     with open('llm-id.txt', 'r') as f:
         MODEL_ID = f.read().strip()
     with open('tts-id.txt', 'r') as f:
@@ -75,7 +75,7 @@ except Exception as e:
     exit(1)
 
 # Global variables
-is_voice_active = False  # Renamed to be more specific
+is_voice_active = False
 voice_client = None
 
 async def play_audio(ctx, audio_bytes):
