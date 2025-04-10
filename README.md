@@ -62,7 +62,6 @@ There is already a file in the repo to help you get started!
 ## File Structure
 ```
 .
-├── .env
 ├── .github
 │   └── workflows
 │       ├── docker.yaml
@@ -97,6 +96,7 @@ There is already a file in the repo to help you get started!
 │       └── requirements.md
 ├── docker-compose.yaml
 ├── download.sh
+├── example.env
 ├── infra
 │   ├── artifact-s3
 │   │   ├── main.tf
