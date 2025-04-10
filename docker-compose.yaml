@@ -34,6 +34,16 @@ services:
       - TIME_LIMIT=${TIME_LIMIT}
       - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
 
+  replicant-bot:
+    image: ghcr.io/gdsmith1/replicant/replicant-bot:latest
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - TIME_LIMIT=${TIME_LIMIT}
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+
   clockwatch:
     image: ghcr.io/gdsmith1/clockwatch:latest
     environment:

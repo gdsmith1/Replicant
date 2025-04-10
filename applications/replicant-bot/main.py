@@ -108,7 +108,7 @@ async def activate(ctx):
             voice_client = await channel.connect()
             is_voice_active = True
 
-            audio_bytes = generate_audio("Logan Link AI Online")
+            audio_bytes = generate_audio("Replicant Online")
             await ctx.send(file=discord.File(audio_bytes, "activation.mp3"))
             await play_audio(ctx, audio_bytes)
             await ctx.send("Voice activation successful. Connected to voice channel.")
