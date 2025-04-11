@@ -4,6 +4,19 @@ import boto3
 import speech_recognition as sr
 from pydub import AudioSegment
 
+def get_bucket_name():
+    # Get AWS_ACCESS_KEY_ID from environment
+    aws_key = os.getenv('AWS_ACCESS_KEY_ID', '')
+
+    # Take first 8 characters and convert to lowercase
+    key_prefix = aws_key[:8].lower() if aws_key else ''
+
+    # Form bucket name
+    bucket_name = f"replicant-s3-{key_prefix}"
+    print(f"Using S3 bucket name: {bucket_name}")
+
+    return bucket_name
+
 def delete_file(bucket_name, s3_key, local_path):
     try:
         # Delete from S3
@@ -67,7 +80,7 @@ def combine_audio_files(successful_files, output_path="combined_audio.wav"): # N
     print(f"Created combined audio file: {output_path}")
     return output_path
 
-def transcribe_audio(files):
+def transcribe_audio(files, bucket_name):
     print("Initialized...")
 
     # Initialize recognizer
@@ -109,17 +122,20 @@ def transcribe_audio(files):
 
     # Clean up failed files from both S3 and local storage
     for local_path, s3_key in failed_files:
-        delete_file('replicant-s3-bucket', s3_key, local_path)
+        delete_file(bucket_name, s3_key, local_path)
 
     # Combine successful audio files
     if successful_files:
         combined_audio_path = combine_audio_files(successful_files)
         if combined_audio_path:
-            upload_file_to_s3('replicant-s3-bucket', combined_audio_path, 'combined_audio.wav')
+            upload_file_to_s3(bucket_name, combined_audio_path, 'combined_audio.wav')
 
     return failed_files
 
 if __name__ == "__main__":
+    # Get the dynamic bucket name
+    bucket_name = get_bucket_name()
+
     # Create necessary directories and files
     if not os.path.exists("audio"):
         os.makedirs("audio")
@@ -132,12 +148,12 @@ if __name__ == "__main__":
     downloaded_files = set()
 
     while time.time() < end_time:
-        new_files = download_files_from_s3('replicant-s3-bucket', 'audio', downloaded_files)
+        new_files = download_files_from_s3(bucket_name, 'audio', downloaded_files)
         if new_files:
-            failed_files = transcribe_audio(new_files)
+            failed_files = transcribe_audio(new_files, bucket_name)  # Pass bucket_name to the function
         print("Waiting for new files...")
         time.sleep(15)  # Wait for 15 seconds before checking for new files
 
     # Upload final files to S3
-    upload_file_to_s3('replicant-s3-bucket', 'transcription.txt', 'transcription.txt')
+    upload_file_to_s3(bucket_name, 'transcription.txt', 'transcription.txt')
     print("Transcription uploaded.")

@@ -7,6 +7,19 @@ import boto3
 import os
 import time
 
+def get_bucket_name():
+    # Get AWS_ACCESS_KEY_ID from environment
+    aws_key = os.getenv('AWS_ACCESS_KEY_ID', '')
+
+    # Take first 8 characters and convert to lowercase
+    key_prefix = aws_key[:8].lower() if aws_key else ''
+
+    # Form bucket name
+    bucket_name = f"replicant-s3-{key_prefix}"
+    print(f"Using S3 bucket name: {bucket_name}")
+
+    return bucket_name
+
 def download_file_from_s3(bucket_name, s3_key, local_path):
     s3 = boto3.client('s3')
     s3.download_file(bucket_name, s3_key, local_path)
@@ -118,10 +131,13 @@ def check_fine_tuning_status(client, job_id):
 if __name__ == "__main__":
     client = OpenAI()
 
+    # Get the dynamic bucket name
+    bucket_name = get_bucket_name()
+
     # Wait for the transcription file to be available
-    TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
-    print("Waiting for transcription file to be available...")
-    time.sleep(TIME_LIMIT + 120)  # Wait for the transcription to finish to start looking
+    # TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
+    # print("Waiting for transcription file to be available...")
+    # time.sleep(TIME_LIMIT + 120)  # Wait for the transcription to finish to start looking
 
     # Check if censoring should be applied
     should_censor = os.getenv('CENSOR_LLM_TRAINING', 'true').lower() == 'true'
@@ -134,7 +150,7 @@ if __name__ == "__main__":
     # Download the transcription file
     while not os.path.exists('transcription.txt'):
         try:
-            download_file_from_s3('replicant-s3-bucket', 'transcription.txt', 'transcription.txt')
+            download_file_from_s3(bucket_name, 'transcription.txt', 'transcription.txt')
         except Exception as e:
             print(f"Error downloading file: {e}. Retrying in 10 seconds...")
             time.sleep(10)
@@ -162,10 +178,10 @@ if __name__ == "__main__":
         with open('llm-id.txt', 'w') as f:
             f.write(fine_tuned_model)
         # Upload the model ID file to S3
-        upload_file_to_s3('replicant-s3-bucket', 'llm-id.txt', 'llm-id.txt')
+        upload_file_to_s3(bucket_name, 'llm-id.txt', 'llm-id.txt')
     except Exception as e:
         print(f"Fine-tuning failed: {e}")
 
     # Upload the fine-tuning dataset to S3
     dataset_s3_key = f'fine_tune_dataset_{customsuffix}.jsonl'
-    upload_file_to_s3('replicant-s3-bucket', 'fine_tune_dataset.jsonl', dataset_s3_key)
+    upload_file_to_s3(bucket_name, 'fine_tune_dataset.jsonl', dataset_s3_key)

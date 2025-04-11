@@ -55,14 +55,17 @@ stop:
 	ssh -i infra/runner-ec2/generated-key.pem ubuntu@$$(cat ./infra/runner-ec2/runner-ip.txt) 'cd /home/ubuntu && sudo docker compose down'
 
 download:
-	@echo "Downloading logs from EC2 instance..."
-	@chmod +x ./download.sh
-	./download.sh replicant-s3-bucket
-	@echo "Download complete. Contents are in bucket_contents.zip"
+	@echo "Determining S3 bucket name..."
+	@AWS_KEY=$$(grep 'AWS_ACCESS_KEY_ID=' .env | cut -d'=' -f2); \
+	KEY_PREFIX=$$(echo $$AWS_KEY | cut -c1-8 | tr '[:upper:]' '[:lower:]'); \
+	BUCKET_NAME="replicant-s3-$$KEY_PREFIX"; \
+	echo "Using bucket name: $$BUCKET_NAME"; \
+	echo "Downloading logs from EC2 instance..."; \
+	chmod +x ./download.sh; \
+	./download.sh $$BUCKET_NAME; \
+	echo "Download complete. Contents are in bucket_contents.zip"
 
 clean:
-	@echo "Stopping docker-compose on EC2 instance..."
-	ssh -i infra/runner-ec2/generated-key.pem ubuntu@$$(cat ./infra/runner-ec2/runner-ip.txt) 'cd /home/ubuntu && sudo docker compose down' || true
 	@echo "Removing EC2 instance from known_hosts..."
 	ssh-keygen -R "$$(cat ./infra/runner-ec2/runner-ip.txt)" || true
 	@echo "Destroying infrastructure..."

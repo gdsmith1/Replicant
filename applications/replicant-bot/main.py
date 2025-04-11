@@ -8,6 +8,19 @@ import asyncio
 import boto3
 import io
 
+def get_bucket_name():
+    # Get AWS_ACCESS_KEY_ID from environment
+    aws_key = os.getenv('AWS_ACCESS_KEY_ID', '')
+
+    # Take first 8 characters and convert to lowercase
+    key_prefix = aws_key[:8].lower() if aws_key else ''
+
+    # Form bucket name
+    bucket_name = f"replicant-s3-{key_prefix}"
+    print(f"Using S3 bucket name: {bucket_name}")
+
+    return bucket_name
+
 # Wait for the tts file to be available
 TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
 print("Waiting for tts/llm file to be available...")
@@ -44,10 +57,12 @@ def download_file_from_s3(bucket_name, s3_key, local_path):
     s3.download_file(bucket_name, s3_key, local_path)
     print(f"Downloaded {s3_key} to {local_path}")
 
+# Get the dynamic bucket name
+bucket_name = get_bucket_name()
+
 # Load model and voice IDs from S3
 try:
     # Download files from S3
-    bucket_name = 'replicant-s3-bucket'
     for file_info in [('llm-id.txt', 'llm-id.txt'), ('tts-id.txt', 'tts-id.txt')]:
         s3_key, local_path = file_info
         retry_count = 0
@@ -60,10 +75,10 @@ try:
             except Exception as e:
                 retry_count += 1
                 print(f"Error downloading {s3_key}: {e}. Retry {retry_count}/{max_retries}...")
-                asyncio.sleep(10)
+                time.sleep(10)
 
-        if retry_count == max_retries:
-            raise Exception(f"Failed to download {s3_key} after {max_retries} attempts")
+            if retry_count == max_retries:
+                raise Exception(f"Failed to download {s3_key} after {max_retries} attempts")
 
     # Read the model and voice IDs
     with open('llm-id.txt', 'r') as f:

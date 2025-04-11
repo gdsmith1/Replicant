@@ -22,9 +22,20 @@ const client = new Client({
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const CHANNEL_ID = process.env.VOICE_CHANNEL_ID;
 const USER_ID = process.env.TARGET_USER_ID;
-const S3_BUCKET_NAME = "replicant-s3-bucket"; // Hardcoded in terraform
 const timeLimit = (process.env.TIME_LIMIT || 600) * 1000; // 10 minutes in seconds
 const speakingLimit = (process.env.SPEAKING_LIMIT || 5) * 1000; // 5 seconds in seconds
+
+// Function to get the dynamic bucket name
+function getBucketName() {
+  const awsAccessKey = process.env.AWS_ACCESS_KEY_ID || "";
+  // Take first 8 characters and convert to lowercase
+  const keyPrefix = awsAccessKey.substring(0, 8).toLowerCase();
+  const bucketName = `replicant-s3-${keyPrefix}`;
+  console.log(`Using S3 bucket name: ${bucketName}`);
+  return bucketName;
+}
+
+const S3_BUCKET_NAME = getBucketName();
 
 // Load AWS credentials from environment variables
 const s3Client = new S3Client({
@@ -170,7 +181,7 @@ async function recordAudio(connection) {
       const command = new PutObjectCommand(params);
       await s3Client.send(command);
       console.log(
-        `File uploaded successfully to ${S3_BUCKET_NAME}/audio/${path.basename(filePath)}`,
+        `File uploaded successfully to ${S3_BUCKET_NAME}/${path.basename(filePath)}`,
       );
     } catch (error) {
       console.error("Error uploading file:", error);

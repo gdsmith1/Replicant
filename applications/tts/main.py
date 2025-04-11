@@ -7,6 +7,18 @@ from elevenlabs.client import ElevenLabs
 from datetime import datetime
 from pydub import AudioSegment
 
+def get_bucket_name():
+    # Get AWS_ACCESS_KEY_ID from environment
+    aws_key = os.getenv('AWS_ACCESS_KEY_ID', '')
+
+    # Take first 8 characters and convert to lowercase
+    key_prefix = aws_key[:8].lower() if aws_key else ''
+
+    # Form bucket name
+    bucket_name = f"replicant-s3-{key_prefix}"
+    print(f"Using S3 bucket name: {bucket_name}")
+
+    return bucket_name
 
 def upload_file_to_s3(bucket_name, file_path, s3_key):
     s3 = boto3.client('s3')
@@ -99,6 +111,9 @@ if __name__ == "__main__":
       api_key=os.getenv('ELEVENLABS_API_KEY'),
     )
 
+    # Get the dynamic bucket name
+    bucket_name = get_bucket_name()
+
     # Wait for the transcription file to be available
     TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
     print("Waiting for audio files to be available...")
@@ -110,7 +125,7 @@ if __name__ == "__main__":
 
     # Call the function to download files
     downloaded_files = set()
-    audio_files = download_files_from_s3('replicant-s3-bucket', 'audio', downloaded_files)
+    audio_files = download_files_from_s3(bucket_name, 'audio', downloaded_files)
 
     # Open files in binary mode
     file_objects = [open(file_path, 'rb') for file_path in audio_files]
@@ -120,7 +135,7 @@ if __name__ == "__main__":
     customsuffix = datetime.now().strftime("%Y%m%d%H%M%S")
     try:
         result = client.voices.add(
-        name=f"replicant-{customsuffix}",
+            name=f"replicant-{customsuffix}",
             files=file_objects,  # Pass the list of file objects
             remove_background_noise=True,
             description="Recorded autonomously via Replicant"
@@ -128,10 +143,10 @@ if __name__ == "__main__":
         print(result)
         # Save voice_id to file
         with open('tts-id.txt', 'w') as f:
-            f.write(result.voice_id)  # Changed from result['voice_id'] to result.voice_id
+            f.write(result.voice_id)
 
         # Upload the file to S3
-        upload_file_to_s3('replicant-s3-bucket', 'tts-id.txt', 'tts-id.txt')
+        upload_file_to_s3(bucket_name, 'tts-id.txt', 'tts-id.txt')
     finally:
         # Make sure to close all file objects
         for file_obj in file_objects:
