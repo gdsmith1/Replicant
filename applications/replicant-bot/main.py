@@ -9,16 +9,10 @@ import boto3
 import io
 
 def get_bucket_name():
-    # Get AWS_ACCESS_KEY_ID from environment
     aws_key = os.getenv('AWS_ACCESS_KEY_ID', '')
-
-    # Take first 8 characters and convert to lowercase
     key_prefix = aws_key[:8].lower() if aws_key else ''
-
-    # Form bucket name
     bucket_name = f"replicant-s3-{key_prefix}"
     print(f"Using S3 bucket name: {bucket_name}")
-
     return bucket_name
 
 # Wait for the tts file to be available

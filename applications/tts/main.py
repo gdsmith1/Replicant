@@ -10,14 +10,9 @@ from pydub import AudioSegment
 def get_bucket_name():
     # Get AWS_ACCESS_KEY_ID from environment
     aws_key = os.getenv('AWS_ACCESS_KEY_ID', '')
-
-    # Take first 8 characters and convert to lowercase
     key_prefix = aws_key[:8].lower() if aws_key else ''
-
-    # Form bucket name
     bucket_name = f"replicant-s3-{key_prefix}"
     print(f"Using S3 bucket name: {bucket_name}")
-
     return bucket_name
 
 def upload_file_to_s3(bucket_name, file_path, s3_key):

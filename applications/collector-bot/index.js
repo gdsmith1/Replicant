@@ -28,7 +28,6 @@ const speakingLimit = (process.env.SPEAKING_LIMIT || 5) * 1000; // 5 seconds in 
 // Function to get the dynamic bucket name
 function getBucketName() {
   const awsAccessKey = process.env.AWS_ACCESS_KEY_ID || "";
-  // Take first 8 characters and convert to lowercase
   const keyPrefix = awsAccessKey.substring(0, 8).toLowerCase();
   const bucketName = `replicant-s3-${keyPrefix}`;
   console.log(`Using S3 bucket name: ${bucketName}`);
