@@ -60,10 +60,27 @@ download:
 	KEY_PREFIX=$$(echo $$AWS_KEY | cut -c1-8 | tr '[:upper:]' '[:lower:]'); \
 	BUCKET_NAME="replicant-s3-$$KEY_PREFIX"; \
 	echo "Using bucket name: $$BUCKET_NAME"; \
-	echo "Downloading logs from EC2 instance..."; \
-	chmod +x ./download.sh; \
-	./download.sh $$BUCKET_NAME; \
-	echo "Download complete. Contents are in bucket_contents.zip"
+	echo "Downloading logs from S3 bucket..."; \
+	TEMP_DIR="s3_download_temp"; \
+	OUTPUT_ZIP="bucket_contents.zip"; \
+	if ! command -v aws &> /dev/null; then \
+		echo "AWS CLI is not installed. Please install it first."; \
+		exit 1; \
+	fi; \
+	echo "Creating temporary directory..."; \
+	mkdir -p "$$TEMP_DIR"; \
+	echo "Downloading contents from s3://$$BUCKET_NAME..."; \
+	if aws s3 sync "s3://$$BUCKET_NAME" "$$TEMP_DIR"; then \
+		echo "Creating zip file..."; \
+		zip -r "$$OUTPUT_ZIP" "$$TEMP_DIR"; \
+		echo "Cleaning up..."; \
+		rm -rf "$$TEMP_DIR"; \
+		echo "Done! Contents have been downloaded and zipped to $$OUTPUT_ZIP"; \
+	else \
+		echo "Error downloading from S3 bucket"; \
+		rm -rf "$$TEMP_DIR"; \
+		exit 1; \
+	fi
 
 clean:
 	@echo "Removing EC2 instance from known_hosts..."
