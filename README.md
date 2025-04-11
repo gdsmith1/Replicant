@@ -24,6 +24,7 @@ To run a remotely hosted Replicant session, you will need all of the following t
 * Terraform
 * Terragrunt
 * Make
+Mac users with Homebrew can install these with `brew bundle` from the root of the project.
 
 ### Tooling for Local Hosting
 The following additional tools are required to run Replicant locally:
