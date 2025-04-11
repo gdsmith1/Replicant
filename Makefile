@@ -2,15 +2,41 @@ start:
 	@echo "Standing up infrastructure..."
 	terragrunt run-all apply --non-interactive
 	@echo "Adding server to known_hosts..."
-	if ! grep -q "$$(cat ./infra/runner-ec2/runner-ip.txt)" ~/.ssh/known_hosts; then \
-		echo "Waiting for instance to be ready..."; \
-		sleep 60; \
-		echo "IP $$(cat ./infra/runner-ec2/runner-ip.txt) not found in known_hosts, adding it..."; \
-		ssh-keyscan -H "$$(cat ./infra/runner-ec2/runner-ip.txt)" >> ~/.ssh/known_hosts && \
+	@echo "Waiting for instance to be ready to accept SSH connections..."
+	@IP="$$(cat ./infra/runner-ec2/runner-ip.txt)"; \
+	MAX_ATTEMPTS=30; \
+	ATTEMPT=1; \
+	until nc -z -w 5 $$IP 22 || [ $$ATTEMPT -gt $$MAX_ATTEMPTS ]; do \
+		echo "Attempt $$ATTEMPT/$$MAX_ATTEMPTS: Instance not ready yet, waiting..."; \
+		sleep 10; \
+		ATTEMPT=$$((ATTEMPT+1)); \
+	done; \
+	if [ $$ATTEMPT -gt $$MAX_ATTEMPTS ]; then \
+		echo "Instance did not become ready within the timeout period"; \
+		exit 1; \
+	fi; \
+	if ! grep -q "$$IP" ~/.ssh/known_hosts; then \
+		echo "IP $$IP not found in known_hosts, adding it..."; \
+		ssh-keyscan -H "$$IP" >> ~/.ssh/known_hosts && \
 		echo "Added host to known_hosts"; \
 	else \
-		echo "Host $$(cat ./infra/runner-ec2/runner-ip.txt) already exists in known_hosts"; \
-		grep -q "$$(cat ./infra/runner-ec2/runner-ip.txt)" ~/.ssh/known_hosts; \
+		echo "Host $$IP already exists in known_hosts"; \
+		grep -q "$$IP" ~/.ssh/known_hosts; \
+	fi
+	@echo "Waiting for Docker daemon to be fully operational..."
+	@IP="$$(cat ./infra/runner-ec2/runner-ip.txt)"; \
+	MAX_ATTEMPTS=30; \
+	ATTEMPT=1; \
+	until ssh -i infra/runner-ec2/generated-key.pem -o ConnectTimeout=5 ubuntu@$$IP 'sudo docker info' 2>/dev/null || [ $$ATTEMPT -gt $$MAX_ATTEMPTS ]; do \
+		echo "Attempt $$ATTEMPT/$$MAX_ATTEMPTS: Docker daemon not ready yet, waiting..."; \
+		sleep 10; \
+		ATTEMPT=$$((ATTEMPT+1)); \
+	done; \
+	if [ $$ATTEMPT -gt $$MAX_ATTEMPTS ]; then \
+		echo "Docker daemon did not become operational within the timeout period"; \
+		exit 1; \
+	else \
+		echo "Docker daemon is operational!"; \
 	fi
 	@echo "Uploading .env and docker-compose.yaml to EC2 instance..."
 	scp -i infra/runner-ec2/generated-key.pem ./.env ubuntu@$$(cat ./infra/runner-ec2/runner-ip.txt):/home/ubuntu/
