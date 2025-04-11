@@ -68,6 +68,7 @@ There is already a file in the repo to help you get started!
 │       ├── docker.yaml
 │       └── readme.yaml
 ├── .gitignore
+├── Brewfile
 ├── LICENSE
 ├── Makefile
 ├── applications
@@ -96,7 +97,6 @@ There is already a file in the repo to help you get started!
 │       ├── main.py
 │       └── requirements.md
 ├── docker-compose.yaml
-├── download.sh
 ├── example.env
 ├── infra
 │   ├── artifact-s3
