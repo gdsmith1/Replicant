@@ -129,9 +129,9 @@ if __name__ == "__main__":
     bucket_name = get_bucket_name()
 
     # Wait for the transcription file to be available
-    # TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
-    # print("Waiting for transcription file to be available...")
-    # time.sleep(TIME_LIMIT + 120)  # Wait for the transcription to finish to start looking
+    TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
+    print("Waiting for transcription file to be available...")
+    time.sleep(TIME_LIMIT + 120)  # Wait for the transcription to finish to start looking
 
     # Check if censoring should be applied
     should_censor = os.getenv('CENSOR_LLM_TRAINING', 'true').lower() == 'true'
