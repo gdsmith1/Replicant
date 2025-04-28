@@ -25,9 +25,6 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# API Clients
-openai_client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-elevenlabs_client = ElevenLabs(api_key=os.getenv('ELEVENLABS_API_KEY'))
 
 def generate_audio(text):
     """Helper function to generate audio using ElevenLabs"""
@@ -59,20 +56,14 @@ try:
     # Download files from S3
     for file_info in [('llm-id.txt', 'llm-id.txt'), ('tts-id.txt', 'tts-id.txt')]:
         s3_key, local_path = file_info
-        retry_count = 0
-        max_retries = 5
 
-        while retry_count < max_retries:
+        while True:  # Infinite loop until download succeeds
             try:
                 download_file_from_s3(bucket_name, s3_key, local_path)
-                break
+                break  # Success, exit loop
             except Exception as e:
-                retry_count += 1
-                print(f"Error downloading {s3_key}: {e}. Retry {retry_count}/{max_retries}...")
+                print(f"Error downloading {s3_key}: {e}. Retrying in 10 seconds...")
                 time.sleep(10)
-
-            if retry_count == max_retries:
-                raise Exception(f"Failed to download {s3_key} after {max_retries} attempts")
 
     # Read the model and voice IDs
     with open('llm-id.txt', 'r') as f:
@@ -264,6 +255,10 @@ async def repeat(ctx):
 
     except Exception as e:
         await ctx.send(f"Error processing audio: {str(e)}")
+
+# API Clients
+openai_client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+elevenlabs_client = ElevenLabs(api_key=os.getenv('ELEVENLABS_API_KEY'))
 
 # Run the bot
 bot.run(os.getenv('DISCORD_BOT_TOKEN'))
