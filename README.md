@@ -6,6 +6,10 @@
 ## Clone your friends with AI!
 Replicant is a collection of modular Docker containers that allows you to collect voice samples from a desired user, and use them to generate fine-tuned Text-to-Speech and Language Models from them, completely autonomously.
 
+## Ethics
+Replicant is designed to be used ethically and responsibly.  It is important to consider the ethical implications of collecting and using voice data, and to ensure that the data is used in a way that is consistent with ethical principles.  It is also important to ensure that the data is collected and used in a way that is consistent with the law.
+[Read more about this here.](ETHICS.md)
+
 ## Getting Started
 To use Replicant, you will need to have the all of the required tools and set up your environment file in the Requirements section.  You can also find several ways to customize your Replicant setup in the environment file.
 
