@@ -75,6 +75,7 @@ There is already a file in the repo to help you get started!
 │       └── readme.yaml
 ├── .gitignore
 ├── Brewfile
+├── ETHICS.md
 ├── LICENSE
 ├── Makefile
 ├── applications
@@ -117,5 +118,5 @@ There is already a file in the repo to help you get started!
 │       └── variables.tf
 └── root.hcl
 
-15 directories, 33 files
+15 directories, 34 files
 ```
