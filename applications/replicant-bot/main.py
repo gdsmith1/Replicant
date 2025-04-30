@@ -18,7 +18,7 @@ def get_bucket_name():
 # Wait for the tts file to be available
 TIME_LIMIT = int(os.getenv('TIME_LIMIT', '600'))
 print("Waiting for tts/llm file to be available...")
-time.sleep(TIME_LIMIT + 120)
+time.sleep(TIME_LIMIT)
 
 # Setup
 intents = discord.Intents.default()
