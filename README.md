@@ -77,7 +77,6 @@ There is already a file in the repo to help you get started!
 │       └── readme.yaml
 ├── .gitignore
 ├── Brewfile
-├── ETHICS.md
 ├── LICENSE
 ├── Makefile
 ├── applications
@@ -106,6 +105,9 @@ There is already a file in the repo to help you get started!
 │       ├── main.py
 │       └── requirements.md
 ├── docker-compose.yaml
+├── docs
+│   ├── ETHICS.md
+│   └── Replicant-Poster.pptx.jpg
 ├── example.env
 ├── infra
 │   ├── artifact-s3
@@ -120,5 +122,5 @@ There is already a file in the repo to help you get started!
 │       └── variables.tf
 └── root.hcl
 
-15 directories, 34 files
+16 directories, 35 files
 ```
