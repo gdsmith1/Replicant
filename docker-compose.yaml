@@ -18,6 +18,8 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - TIME_LIMIT=${TIME_LIMIT}
+      - CENSOR_LLM_TRAINING=${CENSOR_LLM_TRAINING}
+      - LLM_TRAINING_PROMPT=${LLM_TRAINING_PROMPT}
 
   transcribe:
     image: ghcr.io/gdsmith1/replicant/transcribe:latest
